@@ -1,5 +1,7 @@
 using FaceLook.Data;
+using FaceLook.Services;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 
 namespace FaceLook
@@ -19,6 +21,9 @@ namespace FaceLook
             builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
                 .AddEntityFrameworkStores<ApplicationDbContext>();
             builder.Services.AddControllersWithViews();
+
+            builder.Services.AddTransient<IEmailSender, EmailSender>();
+            builder.Services.Configure<MailServerOptions>(builder.Configuration);
 
             var app = builder.Build();
 
