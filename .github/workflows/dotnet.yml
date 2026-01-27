@@ -26,3 +26,12 @@ jobs:
       run: dotnet build --no-restore
     - name: Test
       run: dotnet test --no-build --verbosity normal
+    - name: Upload a Build Artifact
+      uses: actions/upload-artifact@v6.0.0
+      with:
+        error: Fail the action with an error message
+        if-no-files-found: error # optional, default is warn
+        # Duration after which artifact will expire in days. 0 means using default retention.
+        # Minimum 1 day. Maximum 90 days unless changed from the repository settings page.
+        compression-level: 6 # optional, default is 6
+        overwrite: true
