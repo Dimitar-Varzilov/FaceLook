@@ -2,8 +2,11 @@
 
 public record MailServerOptions
 {
-    public required string MailServerUserName { get; set; }
-    public required string MailServerPassword { get; set; }
-    public required string MailServerSenderName{ get; set; }
-    public required string MailServerSenderEmail{ get; set; }
+    public required string Host { get; set; }
+    public required int Port { get; set; }
+    public required bool UseSsl { get; set; }
+    public required string Username { get; set; }
+    public required string Password { get; set; }
+    public required string SenderName { get; set; }
+    public required string SenderEmail { get; set; }
 }
