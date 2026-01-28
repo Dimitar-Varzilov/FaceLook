@@ -12,7 +12,7 @@ public class EmailSender(IOptions<MailServerOptions> optionsAccessor, ILogger<Em
 
     public async Task SendEmailAsync(string toEmail, string subject, string message)
     {
-        if (string.IsNullOrEmpty(MailServerOptions.MailServerPassword))
+        if (string.IsNullOrEmpty(MailServerOptions.Password))
         {
             throw new Exception("Null SendGridKey");
         }
@@ -30,6 +30,7 @@ public class EmailSender(IOptions<MailServerOptions> optionsAccessor, ILogger<Em
 
             email.From.Add(new MailboxAddress(MailServerOptions.MailServerSenderName, MailServerOptions.MailServerSenderEmail));
             email.To.Add(new MailboxAddress("Receiver Name", toEmail));
+            email.From.Add(new MailboxAddress(MailServerOptions.SenderName, MailServerOptions.SenderEmail));
 
             email.Body = new TextPart(TextFormat.Html)
             {
@@ -37,9 +38,9 @@ public class EmailSender(IOptions<MailServerOptions> optionsAccessor, ILogger<Em
             };
 
             using var smtp = new SmtpClient();
-            smtp.Connect("smtp.gmail.com", 465, true);
+            smtp.Connect(MailServerOptions.Host, MailServerOptions.Port, MailServerOptions.UseSsl);
 
-            smtp.Authenticate(MailServerOptions.MailServerUserName, MailServerOptions.MailServerPassword);
+            smtp.Authenticate(MailServerOptions.Username, MailServerOptions.Password);
 
             smtp.Send(email);
             smtp.Disconnect(true);
