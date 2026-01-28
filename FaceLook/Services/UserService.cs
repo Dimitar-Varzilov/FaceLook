@@ -7,7 +7,7 @@ namespace FaceLook.Services
 {
     public class UserService(IHttpContextAccessor httpContextAccessor, ApplicationDbContext applicationDbContext) : IUserService
     {
-        public async Task<IdentityUser<Guid>> CreateUserAsync(IdentityUser<Guid> userForCreation)
+        public async Task<IdentityUser> CreateUserAsync(IdentityUser userForCreation)
         {
             var createdUser = await applicationDbContext.Users.AddAsync(userForCreation);
             return createdUser.Entity;
@@ -22,31 +22,31 @@ namespace FaceLook.Services
             return await applicationDbContext.SaveChangesAsync() > 0;
         }
 
-        public async Task<IdentityUser<Guid>?> GetCurrentUserAsync()
+        public async Task<IdentityUser?> GetCurrentUserAsync()
         {
             string? userId = httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (userId is null) return null;
 
             return applicationDbContext.Users
                 .AsNoTracking()
-                .FirstOrDefault(user => user.Id == Guid.Parse(userId));
+                .FirstOrDefault(user => user.Id == userId);
         }
 
-        public async Task<IdentityUser<Guid>?> GetUserByIdAsync(Guid id)
+        public async Task<IdentityUser?> GetUserByIdAsync(Guid id)
         {
             return applicationDbContext.Users
                 .AsNoTracking()
-                .FirstOrDefault(user => user.Id == id);
+                .FirstOrDefault(user => user.Id == id.ToString());
         }
 
-        public async Task<IList<IdentityUser<Guid>>> GetUsersAsync()
+        public async Task<IList<IdentityUser>> GetUsersAsync()
         {
             return await applicationDbContext.Users
                 .AsNoTracking()
                 .ToListAsync();
         }
 
-        public async Task<IdentityUser<Guid>> UpdateUserAsync(IdentityUser<Guid> userForUpdate)
+        public async Task<IdentityUser> UpdateUserAsync(IdentityUser userForUpdate)
         {
             var entityEntry = applicationDbContext.Users.Update(userForUpdate);
             await applicationDbContext.SaveChangesAsync();
