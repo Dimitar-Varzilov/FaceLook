@@ -1,4 +1,5 @@
 using FaceLook.Services.Extensions;
+using FaceLook.Services.Middlewares;
 
 namespace FaceLook
 {
@@ -27,6 +28,8 @@ namespace FaceLook
             app.UseStaticFiles();
 
             app.UseRouting();
+
+            app.UseMiddleware<ExceptionHandlingMiddleware>();
 
             app.UseAuthorization();
 

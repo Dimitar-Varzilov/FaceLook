@@ -1,8 +1,10 @@
 ﻿using FaceLook.Data;
 using FaceLook.Services.MappingProfiles;
+using FaceLook.Services.Middlewares;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json.Serialization;
 
 namespace FaceLook.Services.Extensions
 {
@@ -12,6 +14,7 @@ namespace FaceLook.Services.Extensions
         {
             RegisterCustomServices(services);
             RegisterApplicationServices(services);
+            RegisterApplicationMiddlewares(services);
             RegisterDbContext(services, configurationManager);
             BindConfigurations(services, configurationManager);
         }
@@ -25,12 +28,20 @@ namespace FaceLook.Services.Extensions
 
         private static void RegisterApplicationServices(IServiceCollection services)
         {
-            services.AddControllersWithViews();
+            services.AddControllersWithViews().AddJsonOptions(options =>
+            {
+                options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+            });
             services.AddHttpContextAccessor();
             services.AddAutoMapper(cfg =>
             {
                 cfg.AddProfile<MesssagingProfile>();
             });
+        }
+
+        private static void RegisterApplicationMiddlewares(IServiceCollection services)
+        {
+            services.AddTransient<ExceptionHandlingMiddleware>();
         }
 
         private static void RegisterDbContext(IServiceCollection services, IConfigurationManager configurationManager)
