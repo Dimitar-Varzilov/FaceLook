@@ -1,3 +1,4 @@
+[![.NET](https://github.com/Dimitar-Varzilov/FaceLook/actions/workflows/dotnet.yml/badge.svg)](https://github.com/Dimitar-Varzilov/FaceLook/actions/workflows/dotnet.yml)
 # FaceLook - а chat messaging app
 
 ## Preresquitives:
