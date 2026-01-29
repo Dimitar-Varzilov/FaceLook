@@ -32,6 +32,14 @@ namespace FaceLook.Services
                 .FirstOrDefault(user => user.Id == userId);
         }
 
+        public async Task<IdentityUser?> GetUserByEmailAsync(string email)
+        {
+            return applicationDbContext.Users
+                .AsNoTracking()
+                .Where(user => user.NormalizedEmail != null)
+                .FirstOrDefault(user => user.NormalizedEmail!.Equals(email, StringComparison.CurrentCultureIgnoreCase));
+        }
+
         public async Task<IdentityUser?> GetUserByIdAsync(Guid id)
         {
             return applicationDbContext.Users
