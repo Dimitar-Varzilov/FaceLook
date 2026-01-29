@@ -23,7 +23,11 @@ namespace FaceLook
             builder.Services.AddControllersWithViews();
 
             builder.Services.AddTransient<IEmailSender, EmailSender>();
-            builder.Services.Configure<MailServerOptions>(builder.Configuration);
+            builder.Services.AddTransient<IUserService, UserService>();
+            builder.Services.Configure<MailServerOptions>(builder.Configuration.GetSection("MailServerOptions"));
+
+            builder.Services.AddHttpContextAccessor();
+
 
             var app = builder.Build();
 

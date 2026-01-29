@@ -6,20 +6,16 @@ using MimeKit.Text;
 
 namespace FaceLook.Services;
 
-public class EmailSender(IOptions<MailServerOptions> optionsAccessor, ILogger<EmailSender> logger) : IEmailSender
+public class EmailSender(IOptions<MailServerOptions> mailServerOptionsAccessor, ILogger<EmailSender> logger, IUserService userService) : IEmailSender
 {
-    public MailServerOptions MailServerOptions { get; } = optionsAccessor.Value;
+    public MailServerOptions MailServerOptions { get; } = mailServerOptionsAccessor.Value;
 
-    public async Task SendEmailAsync(string toEmail, string subject, string message)
+    public async Task SendEmailAsync(string toEmail, string subject, string htmlMessage)
     {
-        if (string.IsNullOrEmpty(MailServerOptions.MailServerPassword))
-        {
-            throw new Exception("Null SendGridKey");
-        }
-        await Execute(subject, message, toEmail);
+        await SendEmailAsyncInternal(subject, htmlMessage, toEmail);
     }
 
-    private async Task Execute(string subject, string message, string toEmail)
+    private async Task SendEmailAsyncInternal(string subject, string htmlMessage, string toEmail)
     {
         try
         {
@@ -28,18 +24,24 @@ public class EmailSender(IOptions<MailServerOptions> optionsAccessor, ILogger<Em
                 Subject = subject,
             };
 
-            email.From.Add(new MailboxAddress(MailServerOptions.MailServerSenderName, MailServerOptions.MailServerSenderEmail));
-            email.To.Add(new MailboxAddress("Receiver Name", toEmail));
+            var currentUser = await userService.GetCurrentUserAsync();
+            var fromSenderName = currentUser?.UserName ?? MailServerOptions.SenderName;
+            var fromSenderEmail = currentUser?.Email ?? MailServerOptions.SenderEmail;
+            email.From.Add(new MailboxAddress(fromSenderName, fromSenderEmail));
+
+            var userToSend = await userService.GetUserByEmailAsync(toEmail);
+            var toSenderName = userToSend?.UserName ?? MailServerOptions.RecepientName;
+            email.To.Add(new MailboxAddress(toSenderName, toEmail));
 
             email.Body = new TextPart(TextFormat.Html)
             {
-                Text = message
+                Text = htmlMessage
             };
 
             using var smtp = new SmtpClient();
-            smtp.Connect("smtp.gmail.com", 465, true);
+            smtp.Connect(MailServerOptions.Host, MailServerOptions.Port, MailServerOptions.UseSsl);
 
-            smtp.Authenticate(MailServerOptions.MailServerUserName, MailServerOptions.MailServerPassword);
+            smtp.Authenticate(MailServerOptions.Username, MailServerOptions.Password);
 
             smtp.Send(email);
             smtp.Disconnect(true);
