@@ -1,4 +1,4 @@
-using FaceLook.Models;
+using FaceLook.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 

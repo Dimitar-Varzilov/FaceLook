@@ -25,9 +25,9 @@ namespace FaceLook.Services
         public async Task<IdentityUser?> GetCurrentUserAsync()
         {
             string? userId = httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (userId is null) return null;
-
-            return applicationDbContext.Users
+            return userId is null
+                ? null
+                : applicationDbContext.Users
                 .AsNoTracking()
                 .FirstOrDefault(user => user.Id == userId);
         }

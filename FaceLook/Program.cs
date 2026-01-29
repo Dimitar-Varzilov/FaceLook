@@ -1,8 +1,4 @@
-using FaceLook.Data;
-using FaceLook.Services;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI.Services;
-using Microsoft.EntityFrameworkCore;
+using FaceLook.Services.Extensions;
 
 namespace FaceLook
 {
@@ -11,23 +7,7 @@ namespace FaceLook
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
-
-            // Add services to the container.
-            var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
-            builder.Services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlServer(connectionString));
-            builder.Services.AddDatabaseDeveloperPageExceptionFilter();
-
-            builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
-                .AddEntityFrameworkStores<ApplicationDbContext>();
-            builder.Services.AddControllersWithViews();
-
-            builder.Services.AddTransient<IEmailSender, EmailSender>();
-            builder.Services.AddTransient<IUserService, UserService>();
-            builder.Services.Configure<MailServerOptions>(builder.Configuration.GetSection("MailServerOptions"));
-
-            builder.Services.AddHttpContextAccessor();
-
+            builder.Services.AddServices(builder.Configuration);
 
             var app = builder.Build();
 

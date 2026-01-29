@@ -1,4 +1,5 @@
 ﻿using MailKit.Net.Smtp;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.Extensions.Options;
 using MimeKit;
@@ -6,17 +7,34 @@ using MimeKit.Text;
 
 namespace FaceLook.Services;
 
-public class EmailSender(IOptions<MailServerOptions> mailServerOptionsAccessor, ILogger<EmailSender> logger, IUserService userService) : IEmailSender
+public class EmailSender(IOptions<MailServerOptions> mailServerOptionsAccessor, ILogger<EmailSender> logger, IUserService userService) : IEmailSender, IEmailSender<IdentityUser>
 {
     public MailServerOptions MailServerOptions { get; } = mailServerOptionsAccessor.Value;
+
+    public async Task SendConfirmationLinkAsync(IdentityUser user, string email, string confirmationLink)
+    {
+        await SendEmailAsyncInternal("Confirmation required", confirmationLink, email);
+    }
 
     public async Task SendEmailAsync(string toEmail, string subject, string htmlMessage)
     {
         await SendEmailAsyncInternal(subject, htmlMessage, toEmail);
     }
 
-    private async Task SendEmailAsyncInternal(string subject, string htmlMessage, string toEmail)
+    public async Task SendPasswordResetCodeAsync(IdentityUser user, string email, string resetCode)
     {
+        await SendEmailAsyncInternal("Password reset code", resetCode, email);
+    }
+
+    public async Task SendPasswordResetLinkAsync(IdentityUser user, string email, string resetLink)
+    {
+        await SendEmailAsyncInternal("Password reset link", resetLink, email);
+    }
+
+    private async Task SendEmailAsyncInternal(string subject, string htmlMessage, string? toEmail)
+    {
+        ArgumentNullException.ThrowIfNull(toEmail);
+
         try
         {
             var email = new MimeMessage()
