@@ -9,4 +9,5 @@ public record MailServerOptions
     public required string Password { get; set; }
     public required string SenderName { get; set; }
     public required string SenderEmail { get; set; }
+    public required string RecepientName { get; set; }
 }
