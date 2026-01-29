@@ -37,7 +37,7 @@ namespace FaceLook.Services
             return applicationDbContext.Users
                 .AsNoTracking()
                 .Where(user => user.NormalizedEmail != null)
-                .FirstOrDefault(user => user.NormalizedEmail!.Equals(email, StringComparison.CurrentCultureIgnoreCase));
+                .FirstOrDefault(user => user.NormalizedEmail == email);
         }
 
         public async Task<IdentityUser?> GetUserByIdAsync(Guid id)
