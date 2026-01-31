@@ -37,6 +37,7 @@ namespace FaceLook.Services.Extensions
             {
                 cfg.AddProfile<MesssagingProfile>();
             });
+            services.AddSignalR();
         }
 
         private static void RegisterApplicationMiddlewares(IServiceCollection services)
