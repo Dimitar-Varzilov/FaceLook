@@ -1,3 +1,4 @@
+using FaceLook.Hubs;
 using FaceLook.Services.Extensions;
 using FaceLook.Services.Middlewares;
 
@@ -37,6 +38,7 @@ namespace FaceLook
                 name: "default",
                 pattern: "{controller=Home}/{action=Index}/{id?}");
             app.MapRazorPages();
+            app.MapHub<ChatHub>("/chatHub");
 
             app.Run();
         }
