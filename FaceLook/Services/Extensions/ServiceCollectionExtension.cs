@@ -24,6 +24,7 @@ namespace FaceLook.Services.Extensions
             services.AddTransient<IEmailSender<IdentityUser>, EmailSender>();
             services.AddTransient<IEmailSender, EmailSender>();
             services.AddTransient<IUserService, UserService>();
+            services.AddTransient<IBlobService, BlobService>();
         }
 
         private static void RegisterApplicationServices(IServiceCollection services)
