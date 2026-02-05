@@ -22,7 +22,7 @@ namespace FaceLook.Controllers
 
             TempData[PictureConstants.PictureMessageKey] = "Picture uploaded sucessfully";
 
-            return RedirectToAction(nameof(HomeController.Index), StringExtenstions.ExtractControllerName(nameof(HomeController)));
+            return RedirectToAction(nameof(HomeController.Index), ControllersExtensions.GetControllerName<HomeController>());
         }
     }
 }
