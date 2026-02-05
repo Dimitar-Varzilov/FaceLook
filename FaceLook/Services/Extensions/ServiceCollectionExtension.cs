@@ -58,6 +58,7 @@ namespace FaceLook.Services.Extensions
         private static void BindConfigurations(IServiceCollection services, IConfigurationManager configurationManager)
         {
             services.Configure<MailServerOptions>(configurationManager.GetSection("MailServerOptions"));
+            services.Configure<BlobStorageOptions>(configurationManager.GetSection("BlobStorageOptions"));
         }
     }
 }
