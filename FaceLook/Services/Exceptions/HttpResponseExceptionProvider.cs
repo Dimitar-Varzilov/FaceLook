@@ -26,7 +26,7 @@ namespace FaceLook.Services.Exceptions
         /// <summary>
         /// Creates a ProblemDetails response for the given exception.
         /// </summary>
-        public static ProblemDetails CreateProblemDetails(Exception exception, string? instance = null)
+        public static ProblemDetails CreateProblemDetails(Exception? exception, string? instance = null)
         {
             int statusCode = GetStatusCode(exception);
             return ProblemDetailsProvider.CreateProblemDetails(exception, statusCode, instance);

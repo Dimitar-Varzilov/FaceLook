@@ -1,0 +1,12 @@
+﻿@using FaceLook.Constants
+@using FaceLook.Controllers
+@using FaceLook.Services.Extensions
+@{
+	string alowedPictureTypes = PictureConstants.AllowedExtensions.Aggregate((prev, curr) => $"{prev}, {curr}");
+	string controllerName = ControllersExtensions.GetControllerName<PicturesController>();
+}
+
+<form asp-controller="@controllerName" asp-action="@nameof(PicturesController.Upload)" method="post" enctype="multipart/form-data">
+	<input type="file" name="picture" accept="@alowedPictureTypes" />
+	<button type="submit">Upload</button>
+</form>
