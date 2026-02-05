@@ -10,11 +10,10 @@ namespace FaceLook.Services
 
         public async Task UploadBlob(IFormFile picture)
         {
-            var blobClient = await GetBlobClient(Guid.NewGuid().ToString(), true);
+            var blobClient = await GetBlobClient(Guid.NewGuid().ToString() + picture.FileName, true);
             var options = new BlobHttpHeaders()
             {
                 ContentType = picture.ContentType,
-                ContentDisposition = picture.ContentDisposition,
             };
             await blobClient.UploadAsync(picture.OpenReadStream(), options);
         }
