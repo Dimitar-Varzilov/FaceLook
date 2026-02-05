@@ -11,5 +11,6 @@ namespace FaceLook.Services
         Task<IdentityUser> UpdateUserAsync(IdentityUser userForUpdate);
         Task<bool> DeleteUserAsync(Guid id);
         Task<IdentityUser?> GetCurrentUserAsync();
+        Task<string> GetRequiredCurrentUserNameAsync();
     }
 }

@@ -1,4 +1,5 @@
 ﻿using FaceLook.Data;
+using FaceLook.Services.Exceptions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
@@ -30,6 +31,12 @@ namespace FaceLook.Services
                 : applicationDbContext.Users
                 .AsNoTracking()
                 .FirstOrDefault(user => user.Id == userId);
+        }
+
+        public async Task<string> GetRequiredCurrentUserNameAsync()
+        {
+            IdentityUser currentUser = await GetCurrentUserAsync() ?? throw new ResourceNotFoundException("User is not found");
+            return currentUser.UserName ?? throw new ValidationException("UserName must be set");
         }
 
         public async Task<IdentityUser?> GetUserByEmailAsync(string email)
