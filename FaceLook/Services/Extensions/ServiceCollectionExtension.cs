@@ -24,7 +24,7 @@ namespace FaceLook.Services.Extensions
             services.AddTransient<IEmailSender<IdentityUser>, EmailSender>();
             services.AddTransient<IEmailSender, EmailSender>();
             services.AddTransient<IUserService, UserService>();
-            services.AddTransient<IBlobService, BlobService>();
+            services.AddTransient<IFileShareService, FileShareService>();
         }
 
         private static void RegisterApplicationServices(IServiceCollection services)
@@ -59,7 +59,7 @@ namespace FaceLook.Services.Extensions
         private static void BindConfigurations(IServiceCollection services, IConfigurationManager configurationManager)
         {
             services.Configure<MailServerOptions>(configurationManager.GetSection("MailServerOptions"));
-            services.Configure<BlobStorageOptions>(configurationManager.GetSection("BlobStorageOptions"));
+            services.Configure<FileShareOptions>(configurationManager.GetSection("FileShareOptions"));
         }
     }
 }
