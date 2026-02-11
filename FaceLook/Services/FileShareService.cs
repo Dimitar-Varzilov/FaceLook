@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using Azure.Storage.Files.Shares;
+﻿using Azure.Storage.Files.Shares;
 using Azure.Storage.Files.Shares.Models;
 using Azure.Storage.Sas;
 using FaceLook.Constants;
