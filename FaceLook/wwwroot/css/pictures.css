@@ -1,0 +1,62 @@
+.user-picture-container {
+    position: relative;
+    width: 150px;
+    height: 150px;
+    cursor: pointer;
+}
+
+.user-picture {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    object-fit: fill;
+}
+
+.large-picture {
+    max-width: 300px;
+    max-height: 300px;
+    display: block;
+    margin: auto;
+}
+
+.edit-icon {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 32px;
+    height: 32px;
+    z-index: 2;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 50%;
+    padding: 4px;
+    cursor: pointer;
+    font-size: 1.2em;
+}
+
+.picture-actions-list {
+    display: none;
+    position: absolute;
+    top: 32px;
+    right: 8px;
+    z-index: 10;
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    min-width: 120px;
+}
+
+.picture-actions-list .dropdown-item {
+    width: 100%;
+    text-align: left;
+    padding: 8px 16px;
+    border: none;
+    background: none;
+    cursor: pointer;
+}
+
+.picture-actions-list .dropdown-item.text-danger {
+    color: #dc3545;
+}
