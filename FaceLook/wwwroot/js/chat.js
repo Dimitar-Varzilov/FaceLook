@@ -1,8 +1,4 @@
 ﻿"use strict";
-
-//Disable the send button until connection is established.
-setSendButtonDisableState(true);
-
 const connection = new signalR.HubConnectionBuilder()
     .withUrl("/chatHub")
     .configureLogging(signalR.LogLevel.Information)
@@ -25,7 +21,6 @@ const removeUserFromGroup = async () => {
 async function start() {
     try {
         await connection.start();
-        setSendButtonDisableState(false);
         addUserToGroup();
         console.log("SignalR Connected.");
     }
