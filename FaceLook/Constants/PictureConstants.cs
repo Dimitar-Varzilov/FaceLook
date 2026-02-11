@@ -6,6 +6,7 @@
 
         public const string PictureMessageKey = "PictureMessage";
         public const string PictureNameKey = "PictureName";
-
+        public const string PictureSasUriKey = "PictureSasUri";
+        public const string PictureSasExpiresOnKey = "PictureSasExpiresOn";
     }
 }

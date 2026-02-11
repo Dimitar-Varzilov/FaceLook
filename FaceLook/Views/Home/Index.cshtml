@@ -1,5 +1,4 @@
 ﻿@page
-@using Microsoft.AspNetCore.Identity
 @inject SignInManager<IdentityUser> SignInManager
 
 @if (SignInManager.IsSignedIn(User))
@@ -29,15 +28,6 @@
 			</div>
 		</div>
 	</div>
-
-	<div class="container">
-		<span class="text-success">@TempData[PictureConstants.PictureMessageKey]</span>
-	</div>
-	<partial name="_UploadPicturePartial" />
-
-	<script src="~/js/home.js" asp-append-version="true"></script>
-	<script src="~/lib/microsoft/signalr/dist/browser/signalr.js"></script>
-	<script src="~/js/chat.js"></script>
 }
 else
 {

@@ -6,7 +6,7 @@
 	string controllerName = ControllersExtensions.GetControllerName<PicturesController>();
 }
 
-<form asp-controller="@controllerName" asp-action="@nameof(PicturesController.Upload)" method="post" enctype="multipart/form-data">
+<form asp-controller="@controllerName" asp-action="@nameof(PicturesController.UploadPicture)" method="post" enctype="multipart/form-data">
 	<input type="file" name="picture" accept="@alowedPictureTypes" />
-	<button type="submit">Upload</button>
+	<button class="btn btn-primary" type="submit">Upload</button>
 </form>
