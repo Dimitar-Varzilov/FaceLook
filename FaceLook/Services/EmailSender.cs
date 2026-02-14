@@ -1,4 +1,5 @@
-﻿using MailKit.Net.Smtp;
+﻿using FaceLook.Data.Entities;
+using MailKit.Net.Smtp;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.Extensions.Options;
@@ -7,11 +8,11 @@ using MimeKit.Text;
 
 namespace FaceLook.Services;
 
-public class EmailSender(IOptions<MailServerOptions> mailServerOptionsAccessor, ILogger<EmailSender> logger, IUserService userService) : IEmailSender, IEmailSender<IdentityUser>
+public class EmailSender(IOptions<MailServerOptions> mailServerOptionsAccessor, ILogger<EmailSender> logger, IUserService userService) : IEmailSender, IEmailSender<User>
 {
     public MailServerOptions MailServerOptions { get; } = mailServerOptionsAccessor.Value;
 
-    public async Task SendConfirmationLinkAsync(IdentityUser user, string email, string confirmationLink)
+    public async Task SendConfirmationLinkAsync(User user, string email, string confirmationLink)
     {
         await SendEmailAsyncInternal("Confirmation required", confirmationLink, email);
     }
@@ -21,12 +22,12 @@ public class EmailSender(IOptions<MailServerOptions> mailServerOptionsAccessor, 
         await SendEmailAsyncInternal(subject, htmlMessage, toEmail);
     }
 
-    public async Task SendPasswordResetCodeAsync(IdentityUser user, string email, string resetCode)
+    public async Task SendPasswordResetCodeAsync(User user, string email, string resetCode)
     {
         await SendEmailAsyncInternal("Password reset code", resetCode, email);
     }
 
-    public async Task SendPasswordResetLinkAsync(IdentityUser user, string email, string resetLink)
+    public async Task SendPasswordResetLinkAsync(User user, string email, string resetLink)
     {
         await SendEmailAsyncInternal("Password reset link", resetLink, email);
     }
