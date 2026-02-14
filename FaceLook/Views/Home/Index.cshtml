@@ -1,5 +1,5 @@
 ﻿@page
-@inject SignInManager<IdentityUser> SignInManager
+@inject SignInManager<User> SignInManager
 
 @if (SignInManager.IsSignedIn(User))
 {
