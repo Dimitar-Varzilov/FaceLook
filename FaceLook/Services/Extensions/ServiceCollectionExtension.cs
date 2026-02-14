@@ -1,4 +1,5 @@
 ﻿using FaceLook.Data;
+using FaceLook.Data.Entities;
 using FaceLook.Services.MappingProfiles;
 using FaceLook.Services.Middlewares;
 using Microsoft.AspNetCore.Identity;
@@ -21,7 +22,7 @@ namespace FaceLook.Services.Extensions
 
         private static void RegisterCustomServices(IServiceCollection services)
         {
-            services.AddTransient<IEmailSender<IdentityUser>, EmailSender>();
+            services.AddTransient<IEmailSender<User>, EmailSender>();
             services.AddTransient<IEmailSender, EmailSender>();
             services.AddTransient<IUserService, UserService>();
             services.AddTransient<IFileShareService, FileShareService>();
@@ -52,7 +53,7 @@ namespace FaceLook.Services.Extensions
             services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(connectionString));
             services.AddDatabaseDeveloperPageExceptionFilter();
 
-            services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
+            services.AddDefaultIdentity<User>(options => options.SignIn.RequireConfirmedAccount = true)
                 .AddEntityFrameworkStores<ApplicationDbContext>();
         }
 
