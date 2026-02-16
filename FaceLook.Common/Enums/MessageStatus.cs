@@ -1,4 +1,4 @@
-﻿namespace FaceLook.Enums
+﻿namespace FaceLook.Common.Enums
 {
     public enum MessageStatus
     {

@@ -1,4 +1,4 @@
-﻿namespace FaceLook.Constants
+﻿namespace FaceLook.Common.Constants
 {
     public static class PictureConstants
     {
