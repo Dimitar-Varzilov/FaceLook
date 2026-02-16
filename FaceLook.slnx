@@ -11,6 +11,6 @@
   </Folder>
   <Folder Name="/Web/">
     <Project Path="FaceLook.Web.ViewModels/FaceLook.Web.ViewModels.csproj" Id="b194e881-50d1-460f-b073-d14710007e3b" />
+    <Project Path="FaceLook/FaceLook.Web.csproj" />
   </Folder>
-  <Project Path="FaceLook/FaceLook.Web.csproj" />
 </Solution>
