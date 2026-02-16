@@ -2,7 +2,7 @@
 using FaceLook.Web.ViewModels;
 using Microsoft.AspNetCore.Http;
 
-namespace FaceLook.Services
+namespace FaceLook.Services.Interfaces
 {
     public interface IFileShareService
     {

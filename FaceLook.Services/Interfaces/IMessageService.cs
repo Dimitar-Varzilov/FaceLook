@@ -1,6 +1,6 @@
 ﻿using FaceLook.Web.ViewModels;
 
-namespace FaceLook.Services
+namespace FaceLook.Services.Interfaces
 {
     public interface IMessageService
     {

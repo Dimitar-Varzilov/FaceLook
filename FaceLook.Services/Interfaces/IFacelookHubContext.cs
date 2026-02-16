@@ -1,7 +1,7 @@
 ﻿using FaceLook.Services.Hubs;
 using Microsoft.AspNetCore.SignalR;
 
-namespace FaceLook.Services
+namespace FaceLook.Services.Interfaces
 {
     /// <summary>
     /// Interface for use in dependency injection

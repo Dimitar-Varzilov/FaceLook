@@ -1,4 +1,4 @@
-﻿namespace FaceLook.Services
+﻿namespace FaceLook.Services.Models
 {
     public record FileShareOptions
     {

@@ -1,4 +1,6 @@
 ﻿using FaceLook.Data.Entities;
+using FaceLook.Services.Interfaces;
+using FaceLook.Services.Models;
 using MailKit.Net.Smtp;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
@@ -8,7 +10,7 @@ using MimeKit;
 using MimeKit.Text;
 using System.Text;
 
-namespace FaceLook.Services;
+namespace FaceLook.Services.Core;
 
 public class EmailSender(IOptions<MailServerOptions> mailServerOptionsAccessor, ILogger<EmailSender> logger, IUserService userService) : IEmailSender, IEmailSender<User>
 {

@@ -5,11 +5,12 @@ using FaceLook.Data;
 using FaceLook.Data.Entities;
 using FaceLook.Services.Exceptions;
 using FaceLook.Services.Hubs;
+using FaceLook.Services.Interfaces;
 using FaceLook.Web.ViewModels;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 
-namespace FaceLook.Services
+namespace FaceLook.Services.Core
 {
     public class MessageService(ApplicationDbContext dbContext, IMapper mapper, IHubContext<ChatHub, IChatClient> hubContext, IUserService userService) : IMessageService
     {

@@ -1,6 +1,6 @@
 ﻿using FaceLook.Data.Entities;
 
-namespace FaceLook.Services
+namespace FaceLook.Services.Interfaces
 {
     public interface IUserService
     {

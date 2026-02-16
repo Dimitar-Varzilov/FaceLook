@@ -1,11 +1,12 @@
 ﻿using FaceLook.Data;
 using FaceLook.Data.Entities;
 using FaceLook.Services.Exceptions;
+using FaceLook.Services.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 
-namespace FaceLook.Services
+namespace FaceLook.Services.Core
 {
     public class UserService(IHttpContextAccessor httpContextAccessor, ApplicationDbContext applicationDbContext) : IUserService
     {

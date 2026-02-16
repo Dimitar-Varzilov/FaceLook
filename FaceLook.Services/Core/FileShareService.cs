@@ -4,11 +4,13 @@ using Azure.Storage.Sas;
 using FaceLook.Common.Constants;
 using FaceLook.Services.Exceptions;
 using FaceLook.Services.Extensions;
+using FaceLook.Services.Interfaces;
+using FaceLook.Services.Models;
 using FaceLook.Web.ViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 
-namespace FaceLook.Services
+namespace FaceLook.Services.Core
 {
     public class FileShareService(IOptions<FileShareOptions> blobOptions, IHttpContextAccessor httpContextAccessor) : IFileShareService
     {
