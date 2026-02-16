@@ -1,7 +1,6 @@
 ﻿using FaceLook.Data;
 using FaceLook.Data.Entities;
 using FaceLook.Services.Exceptions;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 
@@ -12,6 +11,7 @@ namespace FaceLook.Services
         public async Task<User> CreateUserAsync(User userForCreation)
         {
             var createdUser = await applicationDbContext.Users.AddAsync(userForCreation);
+            await applicationDbContext.SaveChangesAsync();
             return createdUser.Entity;
         }
 
@@ -27,11 +27,11 @@ namespace FaceLook.Services
         public async Task<User?> GetCurrentUserAsync()
         {
             string? userId = httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            return userId is null
-                ? null
-                : applicationDbContext.Users
+            if (userId is null) return null;
+
+            return await applicationDbContext.Users
                 .AsNoTracking()
-                .FirstOrDefault(user => user.Id == userId);
+                .FirstOrDefaultAsync(user => user.Id == userId);
         }
 
         public async Task<string> GetRequiredCurrentUserNameAsync()
@@ -42,17 +42,19 @@ namespace FaceLook.Services
 
         public async Task<User?> GetUserByEmailAsync(string? email)
         {
-            return applicationDbContext.Users
+            if (email is null) return null;
+
+            return await applicationDbContext.Users
                 .AsNoTracking()
                 .Where(user => user.NormalizedEmail != null)
-                .FirstOrDefault(user => user.NormalizedEmail == email);
+                .FirstOrDefaultAsync(user => user.NormalizedEmail == email);
         }
 
-        public async Task<User?> GetUserByIdAsync(Guid id)
+        public async Task<User?> GetUserByIdAsync(string id)
         {
-            return applicationDbContext.Users
+            return await applicationDbContext.Users
                 .AsNoTracking()
-                .FirstOrDefault(user => user.Id == id.ToString());
+                .FirstOrDefaultAsync(user => user.Id == id);
         }
 
         public async Task<IList<User>> GetUsersAsync()
