@@ -1,56 +1,117 @@
 ﻿"use strict";
+
 const connection = new signalR.HubConnectionBuilder()
     .withUrl("/chatHub")
     .configureLogging(signalR.LogLevel.Information)
     .withAutomaticReconnect()
     .build();
 
-const addUserToGroup = async () => {
+const addUserToGroupAsync = async () => {
     const userName = getUsernameValue();
-    if (userName === null)
-        return;
-    connection.invoke("JoinGroupAsync", userName);
-};
-const removeUserFromGroup = async () => {
-    const userName = getUsernameValue();
-    if (userName === null)
-        return;
-    connection.invoke("LeaveGroupAsync", userName);
+    if (userName === null) return;
+    
+    try {
+        await connection.invoke("JoinGroupAsync", userName);
+        console.log(`User ${userName} joined their group`);
+    } catch (err) {
+        console.error("Error joining group:", err);
+    }
 };
 
-async function start() {
+const removeUserFromGroupAsync = async () => {
+    const userName = getUsernameValue();
+    if (userName === null) return;
+    
+    try {
+        await connection.invoke("LeaveGroupAsync", userName);
+        console.log(`User ${userName} left their group`);
+    } catch (err) {
+        console.error("Error leaving group:", err);
+    }
+};
+
+async function startAsync() {
     try {
         await connection.start();
-        addUserToGroup();
+        await addUserToGroupAsync();
         console.log("SignalR Connected.");
+    } catch (err) {
+        console.error("SignalR connection error:", err);
+        // Retry connection after 5 seconds
+        setTimeout(startAsync, 5000);
     }
-    catch (err) {
-        console.error(err);
-    }
-};
+}
 
 connection.on("ReceiveMessage", function (user, message) {
-    var li = document.createElement("li");
-    document.getElementById("messagesList").appendChild(li);
-    // We can assign user-supplied strings to an element's textContent because it
-    // is not interpreted as markup. If you're assigning in any other way, you 
-    // should be aware of possible script injection concerns.
-    li.textContent = `${user} says ${message}`;
+    console.log(`Received message from ${user}: ${message}`);
+    displayMessage(user, message);
 });
 
-document.getElementById("sendButton").addEventListener("click", function (event) {
-    const sender = getUsernameValue();
-    var user = document.getElementById("userInput").value;
-    var message = document.getElementById("messageInput").value;
-    connection.invoke("SendMessageToGroupAsync", sender, user, message).catch(function (err) {
-        return console.error(err.toString());
+// Display message in the messages list with glass morphism styling
+function displayMessage(user, message) {
+    const messagesList = document.getElementById("messagesList");
+    if (!messagesList) {
+        console.warn("messagesList element not found");
+        return;
+    }
+
+    const li = document.createElement("li");
+    li.className = "message-item";
+    
+    const timestamp = new Date().toLocaleTimeString('en-US', { 
+        hour: '2-digit', 
+        minute: '2-digit' 
     });
-    event.preventDefault();
+    
+    li.innerHTML = `
+        <div class="d-flex justify-content-between align-items-start mb-2">
+            <div class="d-flex align-items-center">
+                <i class="bi bi-envelope-fill me-2" style="color: #764ba2;"></i>
+                <strong class="text-white">${escapeHtml(user)}</strong>
+            </div>
+            <small class="text-white opacity-75">
+                <i class="bi bi-clock"></i> ${timestamp}
+            </small>
+        </div>
+        <div class="text-white ps-4">
+            ${escapeHtml(message)}
+        </div>
+    `;
+    
+    // Add message to the top of the list
+    messagesList.insertBefore(li, messagesList.firstChild);
+    
+    // Limit to 10 most recent messages
+    while (messagesList.children.length > 10) {
+        messagesList.removeChild(messagesList.lastChild);
+    }
+}
+
+// Escape HTML to prevent XSS
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+// Handle reconnection
+connection.onreconnecting((error) => {
+    console.warn("Connection lost. Reconnecting...", error);
 });
 
+connection.onreconnected((connectionId) => {
+    console.log("Reconnected with ID:", connectionId);
+    addUserToGroupAsync();
+});
 
 connection.onclose(async () => {
-    removeUserFromGroup();
+    await removeUserFromGroupAsync();
+    console.log("SignalR connection closed");
 });
-// Start the connection.
-start();
+
+// Start the connection when DOM is ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', startAsync);
+} else {
+    startAsync();
+}
