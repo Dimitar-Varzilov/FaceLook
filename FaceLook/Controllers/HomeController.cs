@@ -8,7 +8,13 @@ namespace FaceLook.Web.Controllers
     {
         public IActionResult Index()
         {
-            return View();
+            var model = new SendMessageRequest()
+            {
+                ReceiverEmail = string.Empty,
+                Content = string.Empty,
+                SenderId = string.Empty
+            };
+            return View(model);
         }
 
         public IActionResult Privacy()

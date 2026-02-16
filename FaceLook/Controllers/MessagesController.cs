@@ -25,20 +25,33 @@ namespace FaceLook.Web.Controllers
 
         public async Task<IActionResult> Create()
         {
-            return View();
+            var model = new SendMessageRequest()
+            {
+                ReceiverEmail = string.Empty,
+                Content = string.Empty,
+                SenderId = string.Empty
+            };
+            return View(model);
         }
 
-        public async Task<IActionResult> CreateMessage(SendMessageRequest sendMessageRequest)
+        [HttpPost]
+        public async Task<IActionResult> CreateMessage(SendMessageRequest sendMessageRequest, string? returnUrl = null)
         {
             try
             {
                 if (!ModelState.IsValid)
                 {
-                    return View(sendMessageRequest);
+                    return View(nameof(this.Create), sendMessageRequest);
                 }
 
                 var viewModel = await messageService.SendMessageAsync(sendMessageRequest);
-                return RedirectToAction(nameof(Index));
+                
+                if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+                {
+                    return Redirect(returnUrl);
+                }
+
+                return RedirectToAction(nameof(this.Index));
             }
             catch (Exception ex)
             {
