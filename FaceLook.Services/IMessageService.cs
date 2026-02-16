@@ -1,4 +1,4 @@
-﻿using FaceLook.ViewModels;
+﻿using FaceLook.Web.ViewModels;
 
 namespace FaceLook.Services
 {

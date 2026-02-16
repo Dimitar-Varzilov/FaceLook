@@ -1,4 +1,6 @@
 ﻿using FaceLook.Services.Exceptions;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 
 namespace FaceLook.Services.Middlewares
 {

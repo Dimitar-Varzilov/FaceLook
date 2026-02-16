@@ -1,11 +1,11 @@
-﻿using FaceLook.Constants;
+﻿using FaceLook.Common.Constants;
 using FaceLook.Services;
 using FaceLook.Services.Extensions;
-using FaceLook.ViewModels;
+using FaceLook.Web.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace FaceLook.Controllers
+namespace FaceLook.Web.Controllers
 {
     [Authorize]
     public class MessagesController(IMessageService messageService) : Controller

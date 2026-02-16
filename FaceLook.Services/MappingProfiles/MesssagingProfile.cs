@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using FaceLook.Data.Entities;
-using FaceLook.ViewModels;
+using FaceLook.Web.ViewModels;
 
 namespace FaceLook.Services.MappingProfiles
 {

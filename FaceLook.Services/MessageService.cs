@@ -1,11 +1,11 @@
 ﻿using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using FaceLook.Common.Enums;
 using FaceLook.Data;
 using FaceLook.Data.Entities;
-using FaceLook.Enums;
 using FaceLook.Services.Exceptions;
 using FaceLook.Services.Hubs;
-using FaceLook.ViewModels;
+using FaceLook.Web.ViewModels;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 

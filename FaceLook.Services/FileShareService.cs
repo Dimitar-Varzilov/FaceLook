@@ -1,10 +1,11 @@
 ﻿using Azure.Storage.Files.Shares;
 using Azure.Storage.Files.Shares.Models;
 using Azure.Storage.Sas;
-using FaceLook.Constants;
+using FaceLook.Common.Constants;
 using FaceLook.Services.Exceptions;
 using FaceLook.Services.Extensions;
-using FaceLook.ViewModels;
+using FaceLook.Web.ViewModels;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 
 namespace FaceLook.Services

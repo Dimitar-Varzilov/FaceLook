@@ -1,8 +1,8 @@
-using FaceLook.Hubs;
 using FaceLook.Services.Extensions;
+using FaceLook.Services.Hubs;
 using FaceLook.Services.Middlewares;
 
-namespace FaceLook
+namespace FaceLook.Web
 {
     public class Program
     {

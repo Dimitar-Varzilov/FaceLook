@@ -1,4 +1,4 @@
-﻿using FaceLook.Enums;
+﻿using FaceLook.Common.Enums;
 using System.ComponentModel.DataAnnotations;
 
 namespace FaceLook.Web.ViewModels

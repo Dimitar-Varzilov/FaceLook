@@ -1,9 +1,9 @@
-﻿using FaceLook.Constants;
+﻿using FaceLook.Common.Constants;
 using FaceLook.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace FaceLook.Controllers
+namespace FaceLook.Web.Controllers
 {
     [Authorize]
     public class PicturesController(IFileShareService fileShareService) : Controller

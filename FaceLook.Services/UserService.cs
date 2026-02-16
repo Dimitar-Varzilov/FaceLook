@@ -1,6 +1,7 @@
 ﻿using FaceLook.Data;
 using FaceLook.Data.Entities;
 using FaceLook.Services.Exceptions;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 

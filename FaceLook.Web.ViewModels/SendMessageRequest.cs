@@ -1,4 +1,4 @@
-﻿using FaceLook.Validation.Attributes;
+﻿using FaceLook.Common.Validation.Attributes;
 using System.ComponentModel.DataAnnotations;
 
 namespace FaceLook.Web.ViewModels

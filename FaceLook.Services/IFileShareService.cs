@@ -1,5 +1,6 @@
 ﻿using Azure.Storage.Files.Shares.Models;
-using FaceLook.ViewModels;
+using FaceLook.Web.ViewModels;
+using Microsoft.AspNetCore.Http;
 
 namespace FaceLook.Services
 {
