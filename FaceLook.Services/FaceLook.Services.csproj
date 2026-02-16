@@ -6,4 +6,19 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="16.0.0" />
+    <PackageReference Include="Azure.Storage.Files.Shares" Version="12.25.0" />
+    <PackageReference Include="MailKit" Version="4.14.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="8.0.23" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="8.0.23" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR" Version="1.2.9" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\FaceLook.Data\FaceLook.Data.csproj" />
+    <ProjectReference Include="..\FaceLook.Entities\FaceLook.Data.Entities.csproj" />
+    <ProjectReference Include="..\FaceLook.Web.ViewModels\FaceLook.Web.ViewModels.csproj" />
+  </ItemGroup>
+
 </Project>
