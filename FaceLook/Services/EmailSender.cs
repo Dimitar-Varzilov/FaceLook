@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.Extensions.Options;
 using MimeKit;
 using MimeKit.Text;
+using System.Text;
 
 namespace FaceLook.Services;
 
@@ -52,9 +53,11 @@ public class EmailSender(IOptions<MailServerOptions> mailServerOptionsAccessor, 
             var toSenderName = userToSend?.UserName ?? MailServerOptions.RecepientName;
             email.To.Add(new MailboxAddress(toSenderName, toEmail));
 
+            var contentBytres = Encoding.UTF8.GetBytes(htmlMessage);
+            var contentStream = new MemoryStream(contentBytres);
             email.Body = new TextPart(TextFormat.Html)
             {
-                Text = htmlMessage
+                Content = new MimeContent(contentStream)
             };
 
             using var smtp = new SmtpClient();
