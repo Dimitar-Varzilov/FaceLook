@@ -1,4 +1,4 @@
-﻿namespace FaceLook.Entities
+﻿namespace FaceLook.Data.Entities
 {
     public class BaseNamedEntity : BaseEntity
     {

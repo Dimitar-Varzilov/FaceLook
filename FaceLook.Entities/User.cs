@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 
-namespace FaceLook.Entities
+namespace FaceLook.Data.Entities
 {
     public class User : IdentityUser
     {
