@@ -1,7 +1,10 @@
 ﻿using FaceLook.Data;
 using FaceLook.Data.Entities;
+using FaceLook.Services.Core;
+using FaceLook.Services.Interfaces;
 using FaceLook.Services.MappingProfiles;
 using FaceLook.Services.Middlewares;
+using FaceLook.Services.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;

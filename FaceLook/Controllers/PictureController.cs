@@ -1,5 +1,5 @@
 ﻿using FaceLook.Common.Constants;
-using FaceLook.Services;
+using FaceLook.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

@@ -1,6 +1,6 @@
 ﻿using FaceLook.Common.Constants;
-using FaceLook.Services;
 using FaceLook.Services.Extensions;
+using FaceLook.Services.Interfaces;
 using FaceLook.Web.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
