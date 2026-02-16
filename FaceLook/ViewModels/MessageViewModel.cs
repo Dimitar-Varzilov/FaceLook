@@ -1,6 +1,6 @@
 ﻿namespace FaceLook.ViewModels
 {
-    public class MessageViewModel : BaseModifiedViewModel
+    public class MessageViewModel : BaseViewModel
     {
         public required string Content { get; set; }
     }
