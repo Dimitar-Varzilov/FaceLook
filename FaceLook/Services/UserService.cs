@@ -15,7 +15,7 @@ namespace FaceLook.Services
             return createdUser.Entity;
         }
 
-        public async Task<bool> DeleteUserAsync(Guid id)
+        public async Task<bool> DeleteUserAsync(string id)
         {
             var user = await GetUserByIdAsync(id);
             if (user is null) return false;
@@ -40,7 +40,7 @@ namespace FaceLook.Services
             return currentUser.UserName ?? throw new ValidationException("UserName must be set");
         }
 
-        public async Task<User?> GetUserByEmailAsync(string email)
+        public async Task<User?> GetUserByEmailAsync(string? email)
         {
             return applicationDbContext.Users
                 .AsNoTracking()
