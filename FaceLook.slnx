@@ -9,5 +9,8 @@
   <Folder Name="/Services/">
     <Project Path="FaceLook.Services/FaceLook.Services.csproj" Id="7fdbc9d4-ff7a-4ee1-ad68-2bd0baf50e1d" />
   </Folder>
+  <Folder Name="/Web/">
+    <Project Path="FaceLook.Web.ViewModels/FaceLook.Web.ViewModels.csproj" Id="b194e881-50d1-460f-b073-d14710007e3b" />
+  </Folder>
   <Project Path="FaceLook/FaceLook.Web.csproj" />
 </Solution>
