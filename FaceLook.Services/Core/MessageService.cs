@@ -7,12 +7,13 @@ using FaceLook.Services.Exceptions;
 using FaceLook.Services.Hubs;
 using FaceLook.Services.Interfaces;
 using FaceLook.Web.ViewModels;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 
 namespace FaceLook.Services.Core
 {
-    public class MessageService(ApplicationDbContext dbContext, IMapper mapper, IHubContext<ChatHub, IChatClient> hubContext, IUserService userService) : IMessageService
+    public class MessageService(ApplicationDbContext dbContext, IMapper mapper, IHubContext<ChatHub, IChatClient> hubContext, UserManager<User> userManager) : IMessageService
     {
 
         public async Task<MessageViewModel?> GetMessageById(Guid messageId)
@@ -42,7 +43,7 @@ namespace FaceLook.Services.Core
             if (string.Equals(sender.Email, sendMessageRequest.ReceiverEmail, StringComparison.OrdinalIgnoreCase))
                 throw new ValidationException("Cannot send message to self");
 
-            var receiver = await userService.GetUserByEmailAsync(sendMessageRequest.ReceiverEmail);
+            var receiver = await userManager.FindByEmailAsync(sendMessageRequest.ReceiverEmail);
             if (receiver == null)
                 throw new ResourceNotFoundException(nameof(receiver));
 
@@ -120,7 +121,7 @@ namespace FaceLook.Services.Core
             if (string.IsNullOrWhiteSpace(message))
                 throw new ValidationException("Message is required");
 
-            var sender = await userService.GetUserByIdAsync(userId);
+            var sender = await userManager.FindByIdAsync(userId);
             if (sender == null)
                 throw new ResourceNotFoundException(nameof(sender));
 

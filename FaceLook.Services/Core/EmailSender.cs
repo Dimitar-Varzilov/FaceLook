@@ -1,7 +1,7 @@
 ﻿using FaceLook.Data.Entities;
-using FaceLook.Services.Interfaces;
 using FaceLook.Services.Models;
 using MailKit.Net.Smtp;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.Extensions.Logging;
@@ -12,7 +12,7 @@ using System.Text;
 
 namespace FaceLook.Services.Core;
 
-public class EmailSender(IOptions<MailServerOptions> mailServerOptionsAccessor, ILogger<EmailSender> logger, IUserService userService) : IEmailSender, IEmailSender<User>
+public class EmailSender(IOptions<MailServerOptions> mailServerOptionsAccessor, ILogger<EmailSender> logger, UserManager<User> userManager, IHttpContextAccessor httpContextAccessor) : IEmailSender, IEmailSender<User>
 {
     public readonly MailServerOptions MailServerOptions = mailServerOptionsAccessor.Value;
 
@@ -47,12 +47,23 @@ public class EmailSender(IOptions<MailServerOptions> mailServerOptionsAccessor, 
                 Subject = subject,
             };
 
-            var currentUser = await userService.GetCurrentUserAsync();
+
+            var claims = httpContextAccessor.HttpContext?.User;
+            User? currentUser = null;
+            if (claims is not null)
+            {
+                var userFromDb = await userManager.GetUserAsync(claims);
+                if (userFromDb is not null)
+                {
+                    currentUser = userFromDb;
+                }
+            }
+
             var fromSenderName = currentUser?.UserName ?? MailServerOptions.SenderName;
             var fromSenderEmail = currentUser?.Email ?? MailServerOptions.SenderEmail;
             email.From.Add(new MailboxAddress(fromSenderName, fromSenderEmail));
 
-            var userToSend = await userService.GetUserByEmailAsync(toEmail);
+            var userToSend = await userManager.FindByEmailAsync(toEmail);
             var toSenderName = userToSend?.UserName ?? MailServerOptions.RecepientName;
             email.To.Add(new MailboxAddress(toSenderName, toEmail));
 
