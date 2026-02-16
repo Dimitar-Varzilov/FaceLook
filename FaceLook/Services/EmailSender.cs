@@ -11,7 +11,7 @@ namespace FaceLook.Services;
 
 public class EmailSender(IOptions<MailServerOptions> mailServerOptionsAccessor, ILogger<EmailSender> logger, IUserService userService) : IEmailSender, IEmailSender<User>
 {
-    public MailServerOptions MailServerOptions { get; } = mailServerOptionsAccessor.Value;
+    public readonly MailServerOptions MailServerOptions = mailServerOptionsAccessor.Value;
 
     public async Task SendConfirmationLinkAsync(User user, string email, string confirmationLink)
     {
