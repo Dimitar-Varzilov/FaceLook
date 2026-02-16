@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using FaceLook.Validation.Attributes;
+using System.ComponentModel.DataAnnotations;
 
 namespace FaceLook.ViewModels
 {
@@ -11,5 +12,9 @@ namespace FaceLook.ViewModels
         [MinLength(1)]
         [Required]
         public required string Content { get; set; }
+
+        [Required]
+        [GuidString]
+        public required string SenderId { get; set; }
     }
 }
