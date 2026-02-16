@@ -1,8 +1,8 @@
-using FaceLook.ViewModels;
+using FaceLook.Web.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 
-namespace FaceLook.Controllers
+namespace FaceLook.Web.Controllers
 {
     public class HomeController : Controller
     {

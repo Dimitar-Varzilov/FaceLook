@@ -1,0 +1,15 @@
+﻿using Azure.Storage.Files.Shares.Models;
+using FaceLook.Web.ViewModels;
+using Microsoft.AspNetCore.Http;
+
+namespace FaceLook.Services.Interfaces
+{
+    public interface IFileShareService
+    {
+        Task<IList<string>> GetCurrentUserPictureUrls(int page);
+        Task<IList<ShareFileItemViewModel>> GetCurrentUserPictures();
+        Task<ShareFileDownloadInfo> GetPictureByNameAsync(string fileName);
+        Task UploadFile(IFormFile file);
+        Task<bool> DeleteFile(string fileName);
+    }
+}
