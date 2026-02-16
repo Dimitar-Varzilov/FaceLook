@@ -72,6 +72,7 @@ public class EmailSender(IOptions<MailServerOptions> mailServerOptionsAccessor, 
         catch (Exception ex)
         {
             logger.LogError("An error occurred while sending email: {exceptionMessage}", ex.Message);
+            throw;
         }
     }
 }
