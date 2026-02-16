@@ -1,6 +1,6 @@
 ﻿using FaceLook.Enums;
 
-namespace FaceLook.Data.Entities
+namespace FaceLook.Entities
 {
     public class Message : BaseEntity
     {
