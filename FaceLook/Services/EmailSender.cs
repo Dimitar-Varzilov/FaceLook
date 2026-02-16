@@ -14,7 +14,7 @@ public class EmailSender(IOptions<MailServerOptions> mailServerOptionsAccessor, 
 
     public async Task SendConfirmationLinkAsync(User user, string email, string confirmationLink)
     {
-        await SendEmailAsyncInternal("Confirmation required", confirmationLink, email);
+        await SendEmailAsyncInternal("Confirm your email", $"Please confirm your account by <a href='{confirmationLink}'>clicking here</a>.", email);
     }
 
     public async Task SendEmailAsync(string toEmail, string subject, string htmlMessage)
@@ -24,12 +24,12 @@ public class EmailSender(IOptions<MailServerOptions> mailServerOptionsAccessor, 
 
     public async Task SendPasswordResetCodeAsync(User user, string email, string resetCode)
     {
-        await SendEmailAsyncInternal("Password reset code", resetCode, email);
+        await SendEmailAsyncInternal("Reset your password", $"Reset your password using this code: {resetCode}", email);
     }
 
     public async Task SendPasswordResetLinkAsync(User user, string email, string resetLink)
     {
-        await SendEmailAsyncInternal("Password reset link", resetLink, email);
+        await SendEmailAsyncInternal("Reset your password", $"Reset your password by <a href='{resetLink}'>clicking here</a>.", email);
     }
 
     private async Task SendEmailAsyncInternal(string subject, string htmlMessage, string? toEmail)
