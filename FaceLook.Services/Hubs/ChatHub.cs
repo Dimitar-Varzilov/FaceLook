@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 
-namespace FaceLook.Hubs
+namespace FaceLook.Services.Hubs
 {
     public class ChatHub : Hub<IChatClient>
     {

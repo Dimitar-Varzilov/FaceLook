@@ -1,4 +1,4 @@
-﻿namespace FaceLook.Hubs
+﻿namespace FaceLook.Services.Hubs
 {
     public interface IChatClient
     {

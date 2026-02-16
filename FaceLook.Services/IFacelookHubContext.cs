@@ -1,4 +1,4 @@
-﻿using FaceLook.Hubs;
+﻿using FaceLook.Services.Hubs;
 using Microsoft.AspNetCore.SignalR;
 
 namespace FaceLook.Services
