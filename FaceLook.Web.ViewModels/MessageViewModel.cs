@@ -1,7 +1,7 @@
 ﻿using FaceLook.Enums;
 using System.ComponentModel.DataAnnotations;
 
-namespace FaceLook.ViewModels
+namespace FaceLook.Web.ViewModels
 {
     public class MessageViewModel : BaseViewModel
     {

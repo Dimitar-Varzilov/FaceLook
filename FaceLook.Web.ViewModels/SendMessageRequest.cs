@@ -1,7 +1,7 @@
 ﻿using FaceLook.Validation.Attributes;
 using System.ComponentModel.DataAnnotations;
 
-namespace FaceLook.ViewModels
+namespace FaceLook.Web.ViewModels
 {
     public record SendMessageRequest
     {
