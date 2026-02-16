@@ -22,10 +22,11 @@ namespace FaceLook.Services.Extensions
 
         private static void RegisterCustomServices(IServiceCollection services)
         {
-            services.AddTransient<IEmailSender<User>, EmailSender>();
-            services.AddTransient<IEmailSender, EmailSender>();
-            services.AddTransient<IUserService, UserService>();
-            services.AddTransient<IFileShareService, FileShareService>();
+            services.AddScoped<IEmailSender<User>, EmailSender>();
+            services.AddScoped<IEmailSender, EmailSender>();
+            services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IFileShareService, FileShareService>();
+            services.AddScoped<IMessageService, MessageService>();
         }
 
         private static void RegisterApplicationServices(IServiceCollection services)

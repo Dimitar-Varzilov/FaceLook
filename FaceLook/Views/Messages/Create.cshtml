@@ -1,0 +1,34 @@
+﻿@model SendMessageRequest
+@using FaceLook.Services.Extensions
+
+<h4>Message</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="@nameof(MessagesController.CreateMessage)">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+			<input asp-for="SenderId" type="hidden" value="@User.GetUserId()" />
+			<div class="form-group">
+				<label asp-for="ReceiverEmail" class="control-label"></label>
+				<input asp-for="ReceiverEmail" class="form-control" />
+				<span asp-validation-for="ReceiverEmail" class="text-danger"></span>
+			</div>
+            <div class="form-group">
+                <label asp-for="Content" class="control-label"></label>
+                <input asp-for="Content" class="form-control" />
+                <span asp-validation-for="Content" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

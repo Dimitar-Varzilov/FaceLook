@@ -1,0 +1,124 @@
+﻿@model IEnumerable<MessageViewModel>
+
+@{
+	ViewData["Title"] = "Messages";
+}
+
+<h1>View</h1>
+
+<p>
+	<a asp-action="@nameof(MessagesController.Create)">Create New</a>
+</p>
+<p class="text-danger">
+	@TempData[ErrorConstants.ErrorKey]
+</p>
+<table class="table">
+	<thead>
+		<tr>
+			<th>
+				@Html.DisplayNameFor(model => model.Content)
+			</th>
+			<th>
+				@Html.DisplayNameFor(model => model.ModifiedBy)
+			</th>
+			<th>
+				@Html.DisplayNameFor(model => model.CreatedAt)
+			</th>
+			<th>
+				@Html.DisplayNameFor(model => model.ModifiedAt)
+			</th>
+			<th></th>
+		</tr>
+	</thead>
+	<tbody>
+		@foreach (var item in Model)
+		{
+			<tr>
+				<td>
+					@Html.DisplayFor(modelItem => item.Content)
+				</td>
+				<td>
+					@Html.DisplayFor(modelItem => item.ModifiedBy)
+				</td>
+				<td>
+					@Html.DisplayFor(modelItem => item.CreatedAt)
+				</td>
+				<td>
+					@Html.DisplayFor(modelItem => item.ModifiedAt)
+				</td>
+				<td>
+					<a asp-action="@nameof(MessagesController.Edit)" asp-route-id="@item.Id">Edit</a>
+					<button type="button"
+							class="delete-trigger btn btn-danger"
+							data-id="@item.Id">
+						Delete
+					</button>
+				</td>
+			</tr>
+		}
+	</tbody>
+</table>
+<div id="deleteModal" style="display:none; position:fixed; z-index:100; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.6);">
+	<div style="background:white; width:300px; margin:10% auto; padding:20px; border-radius:5px; text-align:center;">
+		<h4>Are you sure?</h4>
+		<p>This action is permanent.</p>
+
+		<form asp-action="@nameof(MessagesController.Delete)" method="post">
+			@Html.AntiForgeryToken()
+			<input type="hidden" name="id" id="modalItemId" value="" />
+            
+			<button type="button" onclick="closeModal()" class="btn">Cancel</button>
+			<button type="submit" class="btn btn-danger">Confirm Delete</button>
+		</form>
+	</div>
+</div>
+<script>
+	"use strict";
+	function confirmDelete(id) {
+	const modal = document.getElementById('deleteModal');
+	const input = document.getElementById('modalItemId');
+	if (modal && input) {
+	input.value = id.toString();
+	modal.style.display = 'block';
+	}
+	}
+	/**
+	* Closes the modal without submitting anything.
+	*/
+	function closeModal() {
+	const modal = document.getElementById('deleteModal');
+	if (modal) {
+	modal.style.display = 'none';
+	}
+	}
+
+	function openModal(id) {
+	const modal = document.getElementById('deleteModal');
+	const input = document.getElementById('modalItemId');
+    
+	input.value = id;
+	modal.style.display = 'block';
+	}
+
+	// Close modal if user clicks outside of the box
+	window.onclick = (event) => {
+	const modal = document.getElementById('deleteModal');
+	if (event.target === modal) {
+	closeModal();
+	}
+	};
+
+	// Use an event listener instead of inline onclick
+	document.addEventListener('click', (event) => {
+	const target = event.target;
+    
+	// Check if the clicked element is a delete button
+	if (target && target.classList.contains('delete-trigger')) {
+	const id = target.getAttribute('data-id');
+	if (id) {
+	openModal(id);
+	}
+	}
+	});
+
+</script>
