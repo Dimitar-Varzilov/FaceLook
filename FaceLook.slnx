@@ -1,4 +1,7 @@
 <Solution>
+  <Folder Name="/Common/">
+    <Project Path="FaceLook.Common/FaceLook.Common.csproj" Id="1ac488c7-4ddc-4baf-ab99-3e6e28f275f1" />
+  </Folder>
   <Folder Name="/Data/">
     <Project Path="FaceLook.Data/FaceLook.Data.csproj" Id="46e8896c-32fc-4ad8-8624-f93a1df20817" />
     <Project Path="FaceLook.Entities/FaceLook.Entities.csproj" Id="777f862e-fb88-4389-a494-f64769be083f" />
