@@ -1,3 +1,6 @@
 <Solution>
+  <Folder Name="/Data/">
+    <Project Path="FaceLook.Data/FaceLook.Data.csproj" Id="46e8896c-32fc-4ad8-8624-f93a1df20817" />
+  </Folder>
   <Project Path="FaceLook/FaceLook.Web.csproj" />
 </Solution>
