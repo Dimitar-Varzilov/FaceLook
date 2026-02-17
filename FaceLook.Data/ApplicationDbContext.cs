@@ -23,6 +23,12 @@ namespace FaceLook.Data
                 .HasForeignKey(m => m.ReceiverId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            builder.Entity<Picture>()
+                .HasOne(p => p.User)
+                .WithMany(u => u.Pictures)
+                .HasForeignKey(p => p.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
             base.OnModelCreating(builder);
         }
     }

@@ -6,5 +6,6 @@ namespace FaceLook.Data.Entities
     {
         public virtual required ICollection<Message> SentMessages { get; set; }
         public virtual required ICollection<Message> ReceivedMessages { get; set; }
+        public virtual required ICollection<Picture> Pictures { get; set; }
     }
 }
