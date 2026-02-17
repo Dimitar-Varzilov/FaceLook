@@ -8,6 +8,7 @@ namespace FaceLook.Data
     {
         public DbSet<Message> Messages { get; set; }
         public DbSet<Picture> Pictures { get; set; }
+        public DbSet<Friendship> Friendships { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
