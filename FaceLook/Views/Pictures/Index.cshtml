@@ -1,84 +1,136 @@
-﻿@using FaceLook.Services.Extensions;
 @model IList<ShareFileItemViewModel>
+
 @section Styles {
 	<link rel="stylesheet" href="~/css/pictures.css" />
 }
+
 @{
 	var pictureControllerName = ControllersExtensions.GetControllerName<PicturesController>();
+	ViewData["Title"] = "Photo Gallery";
 }
 
-@if (Model.Count == 0)
-{
-	<span>No files to show</span>
-}
-else
-{
-	<div class="container">
-		<span class="text-success">@TempData[PictureConstants.PictureMessageKey]</span>
+<div class="container-glass">
+	<div class="d-flex justify-content-between align-items-center mb-4">
+		<h1 class="text-white">
+			<i class="bi bi-images"></i> Photo Gallery
+		</h1>
+		<a href="@this.Url.Action(action: nameof(PicturesController.Upload), controller: pictureControllerName)" 
+		   class="btn glass-button">
+			<i class="bi bi-cloud-upload"></i> Upload Photo
+		</a>
 	</div>
-	<a href="@this.Url.Action(action: nameof(PicturesController.Upload), controller: pictureControllerName)">Upload picture</a>
-	<div class="d-flex gap-4">
-		@foreach (var pictureUri in Model)
-		{
-			<div class="user-picture-container" data-full="@pictureUri.SasUrl">
-				<img src="@pictureUri.SasUrl"
-					 alt="User picture"
-					 class="user-picture" />
-				<span class="edit-icon"
-					  title="Edit"
-					  data-edit="@pictureUri.Name"
-					  tabindex="0">
-					<i class="bi bi-pencil"></i>
-				</span>
-				<ul class="picture-actions-list" style="display:none; position:absolute; top:32px; right:8px; z-index:10; background:white; border:1px solid #ccc; border-radius:4px; list-style:none; padding:0; margin:0; min-width:120px;">
-					<li>
-						<form method="post" asp-controller="Pictures" asp-action="@nameof(PicturesController.Delete)" asp-route-pictureName="@pictureUri.Name" style="margin:0;">
-							<button type="submit" class="dropdown-item text-danger" style="width:100%;text-align:left;">Delete picture</button>
-						</form>
-					</li>
-				</ul>
+
+	@if (TempData[PictureConstants.PictureMessageKey] != null)
+	{
+		<div class="alert alert-success glass-card">
+			<i class="bi bi-check-circle"></i> @TempData[PictureConstants.PictureMessageKey]
+		</div>
+	}
+
+	@if (Model.Count == 0)
+	{
+		<div class="glass-card text-center">
+			<div class="mb-3">
+				<i class="bi bi-image" style="font-size:4rem; color:white;"></i>
 			</div>
-		}
-	</div>
-}
+			<h3 class="text-white">No photos yet</h3>
+			<p class="text-white">Start sharing your moments by uploading your first photo!</p>
+			<a href="@this.Url.Action(action: nameof(PicturesController.Upload), controller: pictureControllerName)" 
+			   class="btn glass-button mt-3">
+				<i class="bi bi-cloud-upload"></i> Upload Your First Photo
+			</a>
+		</div>
+	}
+	else
+	{
+		<div class="picture-gallery">
+			@foreach (var pictureUri in Model)
+			{
+				<div class="picture-card user-picture-container" data-full="@pictureUri.SasUrl">
+					<img src="@pictureUri.SasUrl"
+						 alt="User picture"
+						 class="user-picture" 
+						 style="width:100%; height:100%; object-fit:cover; border-radius:15px;" />
+					
+					<span class="edit-icon"
+						  title="Edit Photo"
+						  data-edit="@pictureUri.Name"
+						  tabindex="0">
+						<i class="bi bi-pencil-fill"></i>
+					</span>
+					
+					<ul class="picture-actions-list" style="display:none;">
+						<li>
+							<form method="post" 
+								  asp-controller="Pictures" 
+								  asp-action="@nameof(PicturesController.Delete)" 
+								  asp-route-pictureName="@pictureUri.Name" 
+								  style="margin:0;">
+								<button type="submit" 
+										class="dropdown-item text-danger" 
+										style="width:100%;text-align:left; padding:8px 16px;">
+									<i class="bi bi-trash"></i> Delete Photo
+								</button>
+							</form>
+						</li>
+					</ul>
+				</div>
+			}
+		</div>
+	}
+</div>
 
 <partial name="_GenericModalPartial" model="string.Empty" />
 
 @section Scripts {
 	<script>
-				document.addEventListener('DOMContentLoaded', function () {
+		document.addEventListener('DOMContentLoaded', function () {
 			const pictureContainers = document.querySelectorAll('.user-picture-container');
 			const editIcons = document.querySelectorAll('.edit-icon');
 			const modalImageContainer = document.getElementById('modalContainer');
 			const modal = new bootstrap.Modal(document.getElementById('genericModal'));
 
+			// Click on image to view full size
 			pictureContainers.forEach(container => {
 				container.querySelector('.user-picture').addEventListener('click', function (e) {
 					e.stopPropagation();
 					const imgUrl = container.getAttribute('data-full');
 					if (modalImageContainer) {
-						modalImageContainer.innerHTML =
+						modalImageContainer.innerHTML = 
 							`<img src="${imgUrl}" class="large-picture" alt="Large picture" />`;
 					}
 					modal.show();
 				});
 			});
 
+			// Toggle actions menu on pencil icon click
 			editIcons.forEach(editIconSpan => {
 				editIconSpan.addEventListener('click', function (e) {
 					e.stopPropagation();
 					e.preventDefault();
-					document.querySelectorAll('.picture-actions-list').forEach(list => list.style.display = 'none');
+					
+					// Close all other menus first
+					document.querySelectorAll('.picture-actions-list').forEach(list => {
+						if (list !== this.parentElement.querySelector('.picture-actions-list')) {
+							list.style.display = 'none';
+						}
+					});
+					
+					// Toggle this menu
 					const actionsList = this.parentElement.querySelector('.picture-actions-list');
 					if (actionsList) {
-						actionsList.style.display = 'block';
+						const isVisible = actionsList.style.display === 'block';
+						actionsList.style.display = isVisible ? 'none' : 'block';
 					}
 				});
 			});
 
+			// Close actions menu when clicking outside
 			document.addEventListener('click', function (e) {
 				if (!e.target.closest('.user-picture-container')) {
-					document.querySelectorAll('.picture-actions-list').forEach(list => list.style.display = 'none');
+					document.querySelectorAll('.picture-actions-list').forEach(list => {
+						list.style.display = 'none';
+					});
 				}
 			});
 		});

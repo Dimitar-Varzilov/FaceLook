@@ -135,6 +135,8 @@ namespace FaceLook.Services.Core
             if (rowModifiedCount > 0 && senderEmail is not null && receiverEmail is not null && !string.IsNullOrEmpty(content))
             {
                 await hubContext.Clients.Group(receiverEmail).ReceiveMessage(senderEmail, content);
+                
+                await hubContext.Clients.Group(senderEmail).ReceiveMessage($"You → {receiverEmail}", content);
             }
         }
     }

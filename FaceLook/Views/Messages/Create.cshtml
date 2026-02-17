@@ -1,32 +1,27 @@
-﻿@model SendMessageRequest
+@model SendMessageRequest
 @using FaceLook.Services.Extensions
 
-<h4>Message</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="@nameof(MessagesController.CreateMessage)">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-			<input asp-for="SenderId" type="hidden" value="@User.GetUserId()" />
-			<div class="form-group">
-				<label asp-for="ReceiverEmail" class="control-label"></label>
-				<input asp-for="ReceiverEmail" class="form-control" />
-				<span asp-validation-for="ReceiverEmail" class="text-danger"></span>
-			</div>
-            <div class="form-group">
-                <label asp-for="Content" class="control-label"></label>
-                <input asp-for="Content" class="form-control" />
-                <span asp-validation-for="Content" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
-    </div>
-</div>
+@{
+    ViewData["Title"] = "New Message";
+}
 
-<div>
-    <a asp-action="Index">Back to List</a>
+<div class="container mt-5">
+    <div class="glass-card">
+        @{
+            ViewData["FormTitle"] = "Create New Message";
+            ViewData["FormSubtitle"] = "Send a message to another user";
+            ViewData["ShowTitle"] = true;
+            ViewData["MessageRows"] = 5;
+            ViewData["SubmitButtonText"] = "Send Message";
+            ViewData["ShowBackButton"] = true;
+        }
+        
+        <div class="row">
+            <div class="col-md-8">
+                <partial name="_SendMessagePartial" model="Model" />
+            </div>
+        </div>
+    </div>
 </div>
 
 @section Scripts {

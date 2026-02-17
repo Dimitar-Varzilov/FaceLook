@@ -1,62 +1,297 @@
+/* Enhanced Picture Gallery Styles with Aero Glass Effects */
+
+/* Picture Card Container */
 .user-picture-container {
     position: relative;
-    width: 150px;
-    height: 150px;
+    width: 100%;
+    aspect-ratio: 1;
     cursor: pointer;
+    border-radius: 15px;
+    overflow: hidden;
+    transition: all 0.3s ease;
 }
 
+.user-picture-container:hover {
+    transform: scale(1.05) translateY(-5px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+}
+
+/* Picture Image */
 .user-picture {
     position: relative;
     width: 100%;
     height: 100%;
-    object-fit: fill;
+    object-fit: cover;
+    transition: transform 0.3s ease;
 }
 
+.user-picture-container:hover .user-picture {
+    transform: scale(1.1);
+}
+
+/* Modal Large Picture - Fixed to fit container */
 .large-picture {
-    max-width: 300px;
-    max-height: 300px;
+    width: auto !important;
+    height: auto !important;
+    max-width: 92vw !important;
+    max-height: 88vh !important;
     display: block;
     margin: auto;
+    border-radius: 15px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    object-fit: contain !important;
 }
 
+/* Modal Container Adjustments */
+#modalContainer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    max-width: 100%;
+    min-height: 70vh;
+    max-height: 90vh;
+}
+
+/* Edit Icon - Glass Pencil in Top Right Corner */
 .edit-icon {
     position: absolute;
-    top: 8px;
-    right: 8px;
-    width: 32px;
-    height: 32px;
-    z-index: 2;
-    background: rgba(255, 255, 255, 0.8);
+    top: 10px;
+    right: 10px;
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
     border-radius: 50%;
-    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
-    font-size: 1.2em;
+    z-index: 10;
+    transition: all 0.3s ease;
+    opacity: 0;
+    transform: scale(0.8);
 }
 
+.user-picture-container:hover .edit-icon {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.edit-icon:hover {
+    background: rgba(255, 255, 255, 0.4);
+    transform: scale(1.1);
+    box-shadow: 0 4px 16px rgba(102, 126, 234, 0.4);
+}
+
+.edit-icon i {
+    color: white;
+    font-size: 18px;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Action Menu Dropdown */
 .picture-actions-list {
-    display: none;
     position: absolute;
-    top: 32px;
-    right: 8px;
-    z-index: 10;
-    background: white;
-    border: 1px solid #ccc;
-    border-radius: 4px;
+    top: 55px;
+    right: 10px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(31, 38, 135, 0.25);
     list-style: none;
     padding: 0;
     margin: 0;
-    min-width: 120px;
+    min-width: 150px;
+    z-index: 20;
+    animation: slideDown 0.2s ease;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.picture-actions-list li {
+    margin: 0;
+    padding: 0;
 }
 
 .picture-actions-list .dropdown-item {
-    width: 100%;
-    text-align: left;
-    padding: 8px 16px;
+    background: transparent;
     border: none;
-    background: none;
-    cursor: pointer;
+    color: #dc3545;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    border-radius: 8px;
+    margin: 4px;
 }
 
-.picture-actions-list .dropdown-item.text-danger {
+.picture-actions-list .dropdown-item:hover {
+    background: rgba(220, 53, 69, 0.1);
     color: #dc3545;
+    transform: translateX(5px);
+}
+
+/* Picture Gallery Grid */
+.picture-gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1.5rem;
+    padding: 2rem;
+}
+
+/* Glass Card for Picture Items */
+.picture-card {
+    position: relative;
+    border-radius: 15px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+}
+
+.picture-card:hover {
+    transform: scale(1.05);
+    box-shadow: 0 16px 48px 0 rgba(31, 38, 135, 0.35);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .picture-gallery {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 1rem;
+        padding: 1rem;
+    }
+    
+    .edit-icon {
+        width: 35px;
+        height: 35px;
+        opacity: 1; /* Always visible on mobile */
+    }
+    
+    .edit-icon i {
+        font-size: 16px;
+    }
+    
+    .large-picture {
+        max-width: 95vw !important;
+        max-height: 85vh !important;
+    }
+    
+    .modal-picture-large {
+        max-width: 98vw !important;
+        width: 98vw !important;
+        margin: 0.5rem auto;
+    }
+    
+    .modal-picture-body {
+        min-height: 60vh;
+        max-height: 85vh;
+        padding: 0.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .picture-gallery {
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    }
+    
+    .picture-actions-list {
+        right: 5px;
+        min-width: 130px;
+    }
+    
+    .modal-picture-large {
+        max-width: 100vw !important;
+        width: 100vw !important;
+        margin: 0;
+    }
+    
+    .modal-picture-body {
+        min-height: 50vh;
+        max-height: 80vh;
+        padding: 0.25rem;
+    }
+    
+    .large-picture {
+        max-width: 98vw !important;
+        max-height: 78vh !important;
+    }
+}
+
+/* Loading State */
+.user-picture-container.loading {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.user-picture-container.loading::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 30px;
+    height: 30px;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* Focus States for Accessibility */
+.edit-icon:focus {
+    outline: 2px solid rgba(102, 126, 234, 0.6);
+    outline-offset: 2px;
+}
+
+.picture-actions-list .dropdown-item:focus {
+    outline: 2px solid rgba(220, 53, 69, 0.5);
+    outline-offset: -2px;
+}
+
+/* Picture Modal Styles - Extra Large */
+.modal-picture-large {
+    max-width: 95vw !important;
+    width: 95vw !important;
+    margin: 1rem auto;
+}
+
+.modal-picture-content {
+    background: rgba(20, 20, 40, 0.95) !important;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+.modal-picture-header {
+    background: rgba(102, 126, 234, 0.2);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 1rem 1.5rem;
+}
+
+.modal-picture-body {
+    padding: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 70vh;
+    max-height: 90vh;
+    overflow: hidden;
 }
