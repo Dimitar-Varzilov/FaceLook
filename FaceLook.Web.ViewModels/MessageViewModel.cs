@@ -1,4 +1,4 @@
-﻿using FaceLook.Common.Enums;
+using FaceLook.Common.Enums;
 using System.ComponentModel.DataAnnotations;
 
 namespace FaceLook.Web.ViewModels
@@ -8,9 +8,13 @@ namespace FaceLook.Web.ViewModels
         [Required]
         public required string SenderId { get; set; }
 
+        public string SenderEmail { get; set; } = string.Empty;
+
         [MinLength(1)]
         [Required]
         public required string ReceiverId { get; set; }
+
+        public string ReceiverEmail { get; set; } = string.Empty;
 
         [MinLength(1)]
         [Required]

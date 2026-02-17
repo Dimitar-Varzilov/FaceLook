@@ -5,6 +5,7 @@
 	var showTitle = ViewData["ShowTitle"] as bool? ?? true;
 	var formClass = ViewData["FormClass"] as string ?? "";
 	var returnUrl = ViewData["ReturnUrl"] as string ?? "";
+	var messageControllerName = ControllersExtensions.GetControllerName<MessagesController>();
 }
 
 @if (showTitle)
@@ -20,7 +21,7 @@
 	</div>
 }
 
-<form asp-controller="Messages" asp-action="@nameof(MessagesController.CreateMessage)" class="@formClass" method="post">
+<form asp-controller="@messageControllerName" asp-action="@nameof(MessagesController.CreateMessage)" class="@formClass" method="post">
 	<div asp-validation-summary="ModelOnly" class="alert alert-danger glass-card mb-3"></div>
     
 	<input asp-for="SenderId" type="hidden" value="@User.GetUserId()" />

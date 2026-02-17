@@ -1,4 +1,6 @@
 @model IEnumerable<MessageViewModel>
+@using FaceLook.Services.Extensions
+@using FaceLook.Common.Constants
 
 @{
 	ViewData["Title"] = "Messages";
@@ -22,51 +24,83 @@
 		</div>
 	}
 
-	<div class="table-responsive">
-		<table class="table table-glass text-white">
-			<thead>
-				<tr>
-					<th>
-						<i class="bi bi-file-text"></i> @Html.DisplayNameFor(model => model.Content)
-					</th>
-					<th>
-						<i class="bi bi-calendar-plus"></i> @Html.DisplayNameFor(model => model.CreatedAt)
-					</th>
-					<th>
-						<i class="bi bi-calendar-check"></i> @Html.DisplayNameFor(model => model.ModifiedAt)
-					</th>
-					<th>
-						<i class="bi bi-gear"></i> Actions
-					</th>
-				</tr>
-			</thead>
-			<tbody>
-				@foreach (var item in Model)
-				{
+	@if (!Model.Any())
+	{
+		<div class="glass-card text-center py-5 text-white-50">
+			<i class="bi bi-chat-square-dots" style="font-size:3rem;"></i>
+			<p class="mt-3">No messages yet. <a asp-action="@nameof(MessagesController.Create)" class="text-info">Send one!</a></p>
+		</div>
+	}
+	else
+	{
+		<div class="table-responsive">
+			<table class="table table-glass text-white">
+				<thead>
 					<tr>
-						<td>@Html.DisplayFor(modelItem => item.Content)</td>
-						<td>@Html.DisplayFor(modelItem => item.CreatedAt)</td>
-						<td>@Html.DisplayFor(modelItem => item.ModifiedAt)</td>
-						@if (currentUserId == item.SenderId)
-						{
-							<td>
-								<a asp-action="@nameof(MessagesController.Edit)"
-									   asp-route-id="@item.Id"
-									   class="btn btn-sm glass-button me-2">
-									<i class="bi bi-pencil"></i> Edit
-								</a>
-								<button type="button"
-										class="delete-trigger btn btn-sm btn-danger"
-										data-id="@item.Id">
-									<i class="bi bi-trash"></i> Delete
-								</button>
-							</td>
-						}
+						<th><i class="bi bi-person-fill"></i> From</th>
+						<th><i class="bi bi-person-check-fill"></i> To</th>
+						<th><i class="bi bi-file-text"></i> @Html.DisplayNameFor(model => model.Content)</th>
+						<th><i class="bi bi-info-circle"></i> Status</th>
+						<th><i class="bi bi-calendar-plus"></i> @Html.DisplayNameFor(model => model.CreatedAt)</th>
+						<th><i class="bi bi-gear"></i> Actions</th>
 					</tr>
-				}
-			</tbody>
-		</table>
-	</div>
+				</thead>
+				<tbody>
+					@foreach (var item in Model)
+					{
+						<tr>
+							<td>
+								@if (item.SenderId == currentUserId)
+								{
+									<span class="badge bg-primary">You</span>
+								}
+								else
+								{
+									<span>@(item.SenderEmail)</span>
+								}
+							</td>
+							<td>
+								@if (item.ReceiverId == currentUserId)
+								{
+									<span class="badge bg-success">You</span>
+								}
+								else
+								{
+									<span>@(item.ReceiverEmail)</span>
+								}
+							</td>
+							<td>@Html.DisplayFor(modelItem => item.Content)</td>
+							<td>
+								<span class="badge @(item.MessageStatus.ToString() == "New" ? "bg-info" : "bg-secondary")">
+									@item.MessageStatus
+								</span>
+							</td>
+							<td>@Html.DisplayFor(modelItem => item.CreatedAt)</td>
+							@if (currentUserId == item.SenderId)
+							{
+								<td>
+									<a asp-action="@nameof(MessagesController.Edit)"
+										   asp-route-id="@item.Id"
+										   class="btn btn-sm glass-button me-2">
+										<i class="bi bi-pencil"></i> Edit
+									</a>
+									<button type="button"
+											class="delete-trigger btn btn-sm btn-danger"
+											data-id="@item.Id">
+										<i class="bi bi-trash"></i> Delete
+									</button>
+								</td>
+							}
+							else
+							{
+								<td><span class="text-white-50">—</span></td>
+							}
+						</tr>
+					}
+				</tbody>
+			</table>
+		</div>
+	}
 </div>
 
 <!-- Modern Glass Modal -->
@@ -101,37 +135,28 @@
 	
 	function closeModal() {
 		const modal = document.getElementById('deleteModal');
-		if (modal) {
-			modal.style.display = 'none';
-		}
+		if (modal) modal.style.display = 'none';
 	}
 
 	function openModal(id) {
 		const modal = document.getElementById('deleteModal');
 		const input = document.getElementById('modalItemId');
-		
 		if (input && modal) {
 			input.value = id;
 			modal.style.display = 'block';
 		}
 	}
 
-	// Close modal if user clicks outside
 	window.onclick = (event) => {
 		const modal = document.getElementById('deleteModal');
-		if (event.target === modal) {
-			closeModal();
-		}
+		if (event.target === modal) closeModal();
 	};
 
-	// Handle delete button clicks
 	document.addEventListener('click', (event) => {
 		const target = event.target.closest('.delete-trigger');
 		if (target) {
 			const id = target.getAttribute('data-id');
-			if (id) {
-				openModal(id);
-			}
+			if (id) openModal(id);
 		}
 	});
 </script>

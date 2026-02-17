@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using FaceLook.Common.Enums;
 using FaceLook.Data;
@@ -13,7 +13,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FaceLook.Services.Core
 {
-    public class MessageService(ApplicationDbContext dbContext, IMapper mapper, IHubContext<ChatHub, IChatClient> hubContext, UserManager<User> userManager) : IMessageService
+    public class MessageService(ApplicationDbContext dbContext, IMapper mapper, IHubContext<ChatHub, IChatClient> hubContext, UserManager<User> userManager, IFriendService friendService) : IMessageService
     {
 
         public async Task<MessageViewModel?> GetMessageById(Guid messageId)
@@ -46,6 +46,10 @@ namespace FaceLook.Services.Core
             var receiver = await userManager.FindByEmailAsync(sendMessageRequest.ReceiverEmail);
             if (receiver == null)
                 throw new ResourceNotFoundException(nameof(receiver));
+
+            bool areFriends = await friendService.AreFriendsAsync(sender.Id, receiver.Id);
+            if (!areFriends)
+                throw new ValidationException("You can only send messages to friends");
 
             var messageToAdd = new Message()
             {

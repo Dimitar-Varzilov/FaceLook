@@ -1,4 +1,4 @@
-﻿using FaceLook.Data.Entities;
+using FaceLook.Data.Entities;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
@@ -8,6 +8,7 @@ namespace FaceLook.Data
     {
         public DbSet<Message> Messages { get; set; }
         public DbSet<Picture> Pictures { get; set; }
+        public DbSet<Friendship> Friendships { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -28,6 +29,23 @@ namespace FaceLook.Data
                 .WithMany(u => u.Pictures)
                 .HasForeignKey(p => p.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<Friendship>()
+                .HasOne(f => f.Requester)
+                .WithMany(u => u.SentFriendRequests)
+                .HasForeignKey(f => f.RequesterId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<Friendship>()
+                .HasOne(f => f.Addressee)
+                .WithMany(u => u.ReceivedFriendRequests)
+                .HasForeignKey(f => f.AddresseeId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Prevent duplicate friendship entries
+            builder.Entity<Friendship>()
+                .HasIndex(f => new { f.RequesterId, f.AddresseeId })
+                .IsUnique();
 
             base.OnModelCreating(builder);
         }
