@@ -1,9 +1,7 @@
-﻿using Azure.Storage.Files.Shares;
+using Azure.Storage.Files.Shares;
 using Azure.Storage.Files.Shares.Models;
 using Azure.Storage.Sas;
-using FaceLook.Common.Constants;
 using FaceLook.Services.Exceptions;
-using FaceLook.Services.Extensions;
 using FaceLook.Services.Interfaces;
 using FaceLook.Services.Models;
 using FaceLook.Web.ViewModels;
@@ -12,119 +10,85 @@ using Microsoft.Extensions.Options;
 
 namespace FaceLook.Services.Core
 {
-    public class FileShareService(IOptions<FileShareOptions> blobOptions, IHttpContextAccessor httpContextAccessor) : IFileShareService
+    public class FileShareService(IOptions<FileShareOptions> fileShareOptions) : IFileShareService
     {
-        private readonly string UserName = httpContextAccessor.HttpContext?.User.Identity?.Name ?? throw new ArgumentNullException(nameof(UserName));
-        public async Task<IList<string>> GetCurrentUserPictureUrls(int page)
+        public async Task<IList<ShareFileItem>> GetFilesAsync(string userId, string directoryName)
         {
-            IList<string> pictures = [];
-            var shareDirectoryClient = await GetUserDirectoryClient(FileDirectoryConstants.Pictures);
-            await foreach (var fileSharee in shareDirectoryClient.GetFilesAndDirectoriesAsync())
-            {
-                if (fileSharee.IsDirectory) continue;
+            IList<ShareFileItem> files = [];
+            var directoryClient = await GetUserDirectoryClientAsync(userId, directoryName);
 
-                var shareFileClient = shareDirectoryClient.GetFileClient(fileSharee.Name);
-                pictures.Add(await GetSasUrl(shareFileClient));
+            await foreach (var item in directoryClient.GetFilesAndDirectoriesAsync())
+            {
+                if (item.IsDirectory) continue;
+                files.Add(item);
             }
-            return pictures;
+
+            return files;
         }
 
-        public async Task<IList<ShareFileItemViewModel>> GetCurrentUserPictures()
+        public async Task<ShareFileDownloadInfo> GetFileByNameAsync(string userId, string directoryName, string fileName)
         {
-            IList<ShareFileItemViewModel> pictures = [];
-            var shareDirectoryClient = await GetUserDirectoryClient(FileDirectoryConstants.Pictures);
-            await foreach (var fileSharee in shareDirectoryClient.GetFilesAndDirectoriesAsync())
-            {
-                if (fileSharee.IsDirectory) continue;
-
-                var shareFileClient = shareDirectoryClient.GetFileClient(fileSharee.Name);
-                var sasUrl = await GetSasUrl(shareFileClient);
-                pictures.Add(new() { Name = fileSharee.Name, SasUrl = sasUrl });
-            }
-            return pictures;
-        }
-
-        public async Task<ShareFileDownloadInfo> GetPictureByNameAsync(string name)
-        {
-            var fileClient = await GetUserShareFileClientAsync(FileDirectoryConstants.Pictures, name);
+            var fileClient = await GetFileClientAsync(userId, directoryName, fileName);
             var downloadResponse = await fileClient.DownloadAsync();
             return downloadResponse.Value;
         }
 
-        public async Task UploadFile(IFormFile file)
+        public async Task<FileUploadResult> UploadFileAsync(string userId, string directoryName, IFormFile file)
         {
-            var directoryClient = await GetUserDirectoryClient(FileDirectoryConstants.Pictures);
+            var directoryClient = await GetUserDirectoryClientAsync(userId, directoryName);
 
-            string clientFileName = Guid.NewGuid().ToString() + file.FileName;
-            var shareFileClientResponse = await directoryClient.CreateFileAsync(clientFileName, file.Length);
+            var fileName = Guid.NewGuid() + file.FileName;
+            var fileClientResponse = await directoryClient.CreateFileAsync(fileName, file.Length);
 
-            using var fs = shareFileClientResponse.Value.OpenWrite(false, 0);
-            await file.CopyToAsync(fs);
+            using var stream = fileClientResponse.Value.OpenWrite(false, 0);
+            await file.CopyToAsync(stream);
 
-            await GenerateSasUrl(shareFileClientResponse.Value);
+            return await GenerateSasUrlAsync(fileClientResponse.Value);
         }
 
-        public async Task<bool> DeleteFile(string name)
+        public async Task<bool> DeleteFileAsync(string userId, string directoryName, string fileName)
         {
-            var blobClient = await GetUserShareFileClientAsync(FileDirectoryConstants.Pictures, name);
-            var result = await blobClient.DeleteAsync();
+            var fileClient = await GetFileClientAsync(userId, directoryName, fileName);
+            var result = await fileClient.DeleteAsync();
             return !result.IsError;
         }
-        private async Task<ShareDirectoryClient> GetUserDirectoryClient(string directoryName)
+
+        public async Task<FileUploadResult> RefreshSasUrlAsync(string userId, string directoryName, string fileName)
         {
-            ShareClient shareClient = new(blobOptions.Value.ConnectionString, blobOptions.Value.FileShare);
-            await shareClient.GetDirectoryClient(Path.Combine(UserName, directoryName)).CreateIfNotExistsAsync();
-            return shareClient.GetDirectoryClient(UserName);
+            var fileClient = await GetFileClientAsync(userId, directoryName, fileName);
+            return await GenerateSasUrlAsync(fileClient);
         }
 
-        private async Task<ShareFileClient> GetUserShareFileClientAsync(string directoryName, string name)
+        private async Task<ShareDirectoryClient> GetUserDirectoryClientAsync(string userId, string directoryName)
         {
-            var directoryClient = await GetUserDirectoryClient(directoryName);
-            return directoryClient.GetFileClient(name);
+            var shareClient = new ShareClient(fileShareOptions.Value.ConnectionString, fileShareOptions.Value.FileShare);
+
+            //Create User directory if does not exists
+            await shareClient.GetDirectoryClient(userId).CreateIfNotExistsAsync();
+
+            //Create directory based on directoryName
+            var directoryPath = Path.Combine(userId, directoryName);
+            var directoryClient = shareClient.GetDirectoryClient(directoryPath);
+            await directoryClient.CreateIfNotExistsAsync();
+
+            return directoryClient;
         }
 
-        private async Task<string> GetSasUrl(ShareFileClient shareFileClient)
+        private async Task<ShareFileClient> GetFileClientAsync(string userId, string directoryName, string fileName)
         {
-            var filePropertiesResposne = await shareFileClient.GetPropertiesAsync();
-            var metaData = filePropertiesResposne.Value.Metadata;
-            var expiresOnValue = metaData[PictureConstants.PictureSasExpiresOnKey].FromBase64();
-            if (DateTimeOffset.Parse(expiresOnValue) < DateTimeOffset.Now)
-            {
-                return await GenerateSasUrl(shareFileClient);
-            }
-            if (!metaData.TryGetValue(PictureConstants.PictureSasUriKey, out string? uri))
-            {
-                return await GenerateSasUrl(shareFileClient);
-            }
-
-            return uri.FromBase64();
+            var directoryClient = await GetUserDirectoryClientAsync(userId, directoryName);
+            return directoryClient.GetFileClient(fileName);
         }
 
-
-        private async Task<string> GenerateSasUrl(ShareFileClient shareFileClient)
+        private async Task<FileUploadResult> GenerateSasUrlAsync(ShareFileClient fileClient)
         {
-            if (!shareFileClient.CanGenerateSasUri)
-            {
-                throw new ValidationException("SAS generation is not allowed");
-            }
-            var expriresOnDate = DateTime.UtcNow.AddHours(blobOptions.Value.SasExpiryInHours);
-            var expiresOnDateTimeOffset = new DateTimeOffset(expriresOnDate);
-            var uri = shareFileClient.GenerateSasUri(ShareFileSasPermissions.Read, expiresOnDateTimeOffset);
+            if (!fileClient.CanGenerateSasUri)
+                throw new ValidationException("SAS generation is not supported for this file client");
 
-            //We use base64 conversions, because metadata could not contains non-ASCII characters
-            var absoluteUriBase64 = uri.AbsoluteUri.ToBase64();
-            var metadata = new Dictionary<string, string>()
-            {
-                {
-                    PictureConstants.PictureSasUriKey, absoluteUriBase64
-                },
-                {
-                    PictureConstants.PictureSasExpiresOnKey, expiresOnDateTimeOffset.ToString().ToBase64()
-                }
-            };
-            await shareFileClient.SetMetadataAsync(metadata);
+            var expiresOn = new DateTimeOffset(DateTime.UtcNow.AddHours(fileShareOptions.Value.SasExpiryInHours));
+            var sasUri = fileClient.GenerateSasUri(ShareFileSasPermissions.Read, expiresOn);
 
-            return absoluteUriBase64;
+            return new FileUploadResult(fileClient.Name, sasUri.AbsoluteUri, expiresOn);
         }
     }
 }
