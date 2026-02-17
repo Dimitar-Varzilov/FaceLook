@@ -1,4 +1,4 @@
-﻿using FaceLook.Data;
+using FaceLook.Data;
 using FaceLook.Data.Entities;
 using FaceLook.Services.Core;
 using FaceLook.Services.Interfaces;
@@ -32,6 +32,7 @@ namespace FaceLook.Services.Extensions
             services.AddScoped<IFileShareService, FileShareService>();
             services.AddScoped<IMessageService, MessageService>();
             services.AddScoped<IPictureService, PictureService>();
+            services.AddScoped<IFriendService, FriendService>();
         }
 
         private static void RegisterApplicationServices(IServiceCollection services)
