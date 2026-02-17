@@ -1,4 +1,4 @@
-@model IList<ShareFileItemViewModel>
+@model IEnumerable<PictureViewModel>
 
 @section Styles {
 	<link rel="stylesheet" href="~/css/pictures.css" />
@@ -14,8 +14,8 @@
 		<h1 class="text-white">
 			<i class="bi bi-images"></i> Photo Gallery
 		</h1>
-		<a href="@this.Url.Action(action: nameof(PicturesController.Upload), controller: pictureControllerName)" 
-		   class="btn glass-button">
+		<a href="@this.Url.Action(action: nameof(PicturesController.Upload), controller: pictureControllerName)"
+			   class="btn glass-button">
 			<i class="bi bi-cloud-upload"></i> Upload Photo
 		</a>
 	</div>
@@ -27,7 +27,14 @@
 		</div>
 	}
 
-	@if (Model.Count == 0)
+	else if (TempData[PictureConstants.PictureErrorKey] != null)
+	{
+		<div class="alert alert-danger glass-card">
+			<i class="bi bi-exclamation-triangle"></i> @TempData[PictureConstants.PictureMessageKey]
+		</div>
+	}
+
+	@if (Model.Count() == 0)
 	{
 		<div class="glass-card text-center">
 			<div class="mb-3">
@@ -35,8 +42,8 @@
 			</div>
 			<h3 class="text-white">No photos yet</h3>
 			<p class="text-white">Start sharing your moments by uploading your first photo!</p>
-			<a href="@this.Url.Action(action: nameof(PicturesController.Upload), controller: pictureControllerName)" 
-			   class="btn glass-button mt-3">
+			<a href="@this.Url.Action(action: nameof(PicturesController.Upload), controller: pictureControllerName)"
+				   class="btn glass-button mt-3">
 				<i class="bi bi-cloud-upload"></i> Upload Your First Photo
 			</a>
 		</div>
@@ -44,30 +51,30 @@
 	else
 	{
 		<div class="picture-gallery">
-			@foreach (var pictureUri in Model)
+			@foreach (var pictureViewModel in Model)
 			{
-				<div class="picture-card user-picture-container" data-full="@pictureUri.SasUrl">
-					<img src="@pictureUri.SasUrl"
+				<div class="picture-card user-picture-container" data-full="@pictureViewModel.SasUrl">
+					<img src="@pictureViewModel.SasUrl"
 						 alt="User picture"
-						 class="user-picture" 
+						 class="user-picture"
 						 style="width:100%; height:100%; object-fit:cover; border-radius:15px;" />
 					
 					<span class="edit-icon"
 						  title="Edit Photo"
-						  data-edit="@pictureUri.Name"
+						  data-edit="@pictureViewModel.Name"
 						  tabindex="0">
 						<i class="bi bi-pencil-fill"></i>
 					</span>
 					
 					<ul class="picture-actions-list" style="display:none;">
 						<li>
-							<form method="post" 
-								  asp-controller="Pictures" 
-								  asp-action="@nameof(PicturesController.Delete)" 
-								  asp-route-pictureName="@pictureUri.Name" 
+							<form method="post"
+								  asp-controller="Pictures"
+								  asp-action="@nameof(PicturesController.Delete)"
+								  asp-route-pictureId="@pictureViewModel.Id"
 								  style="margin:0;">
-								<button type="submit" 
-										class="dropdown-item text-danger" 
+								<button type="submit"
+										class="dropdown-item text-danger"
 										style="width:100%;text-align:left; padding:8px 16px;">
 									<i class="bi bi-trash"></i> Delete Photo
 								</button>
@@ -96,7 +103,7 @@
 					e.stopPropagation();
 					const imgUrl = container.getAttribute('data-full');
 					if (modalImageContainer) {
-						modalImageContainer.innerHTML = 
+						modalImageContainer.innerHTML =
 							`<img src="${imgUrl}" class="large-picture" alt="Large picture" />`;
 					}
 					modal.show();
