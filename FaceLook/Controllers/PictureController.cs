@@ -1,4 +1,5 @@
-﻿using FaceLook.Common.Constants;
+using FaceLook.Common.Constants;
+using FaceLook.Services.Extensions;
 using FaceLook.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -6,45 +7,52 @@ using Microsoft.AspNetCore.Mvc;
 namespace FaceLook.Web.Controllers
 {
     [Authorize]
-    public class PicturesController(IFileShareService fileShareService) : Controller
+    public class PicturesController(IPictureService pictureService) : Controller
     {
         public async Task<ViewResult> Index()
         {
-            var pictureNames = await fileShareService.GetCurrentUserPictures();
-            return View(pictureNames);
+            var userId = User.GetUserId();
+            var pictures = await pictureService.GetUserPicturesAsync(userId);
+            return View(pictures);
         }
 
-        public async Task<FileStreamResult> GetPicture([FromQuery] string pictureName)
-        {
-            var picture = await fileShareService.GetPictureByNameAsync(pictureName);
-            return File(picture.Content, picture.ContentType);
-        }
         public async Task<IActionResult> Upload()
         {
             return View();
         }
 
+        [HttpPost]
         public async Task<IActionResult> UploadPicture(IFormFile picture)
         {
             if (picture == null || picture.Length == 0)
-                return BadRequest("No file selected.");
+                return RedirectWithMessage("No file selected.");
 
             var extension = Path.GetExtension(picture.FileName).ToLowerInvariant();
-
             if (!PictureConstants.AllowedExtensions.Contains(extension))
-                return BadRequest("Invalid file type.");
+                return RedirectWithMessage("Invalid file type.");
 
-            await fileShareService.UploadFile(picture);
+            var userId = User.GetUserId();
+            await pictureService.UploadPictureAsync(userId, picture);
 
-            TempData[PictureConstants.PictureMessageKey] = "Picture uploaded sucessfully";
-
-            return RedirectToAction(nameof(Index));
+            return RedirectWithMessage("Picture uploaded successfully.", PictureConstants.PictureMessageKey);
         }
 
-        public async Task<IActionResult> Delete([FromQuery] string pictureName)
+        [HttpPost]
+        public async Task<IActionResult> Delete(Guid pictureId)
         {
-            await fileShareService.DeleteFile(pictureName);
-            return RedirectToAction(nameof(Index));
+            if (pictureId == Guid.Empty)
+            {
+                return RedirectWithMessage("Picture id not found.");
+            }
+            var userId = User.GetUserId();
+            await pictureService.DeletePictureAsync(userId, pictureId);
+            return RedirectWithMessage("Picture deleted successfully.", PictureConstants.PictureMessageKey);
+        }
+
+        private RedirectToActionResult RedirectWithMessage(string message, string key = PictureConstants.PictureErrorKey, string action = nameof(Index))
+        {
+            TempData[key] = message;
+            return RedirectToAction(action);
         }
     }
 }

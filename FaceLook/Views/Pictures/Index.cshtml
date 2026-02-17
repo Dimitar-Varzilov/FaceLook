@@ -1,4 +1,4 @@
-@model IList<ShareFileItemViewModel>
+@model IEnumerable<PictureViewModel>
 
 @section Styles {
 	<link rel="stylesheet" href="~/css/pictures.css" />
@@ -14,8 +14,8 @@
 		<h1 class="text-white">
 			<i class="bi bi-images"></i> Photo Gallery
 		</h1>
-		<a href="@this.Url.Action(action: nameof(PicturesController.Upload), controller: pictureControllerName)" 
-		   class="btn glass-button">
+		<a href="@this.Url.Action(action: nameof(PicturesController.Upload), controller: pictureControllerName)"
+			   class="btn glass-button">
 			<i class="bi bi-cloud-upload"></i> Upload Photo
 		</a>
 	</div>
@@ -27,7 +27,14 @@
 		</div>
 	}
 
-	@if (Model.Count == 0)
+	else if (TempData[PictureConstants.PictureErrorKey] != null)
+	{
+		<div class="alert alert-danger glass-card">
+			<i class="bi bi-exclamation-triangle"></i> @TempData[PictureConstants.PictureMessageKey]
+		</div>
+	}
+
+	@if (Model.Count() == 0)
 	{
 		<div class="glass-card text-center">
 			<div class="mb-3">
@@ -35,8 +42,8 @@
 			</div>
 			<h3 class="text-white">No photos yet</h3>
 			<p class="text-white">Start sharing your moments by uploading your first photo!</p>
-			<a href="@this.Url.Action(action: nameof(PicturesController.Upload), controller: pictureControllerName)" 
-			   class="btn glass-button mt-3">
+			<a href="@this.Url.Action(action: nameof(PicturesController.Upload), controller: pictureControllerName)"
+				   class="btn glass-button mt-3">
 				<i class="bi bi-cloud-upload"></i> Upload Your First Photo
 			</a>
 		</div>
@@ -44,34 +51,30 @@
 	else
 	{
 		<div class="picture-gallery">
-			@foreach (var pictureUri in Model)
+			@foreach (var pictureViewModel in Model)
 			{
-				<div class="picture-card user-picture-container" data-full="@pictureUri.SasUrl">
-					<img src="@pictureUri.SasUrl"
+				<div class="picture-card user-picture-container" data-full="@pictureViewModel.SasUrl">
+					<img src="@pictureViewModel.SasUrl"
 						 alt="User picture"
-						 class="user-picture" 
+						 class="user-picture"
 						 style="width:100%; height:100%; object-fit:cover; border-radius:15px;" />
-					
+
 					<span class="edit-icon"
 						  title="Edit Photo"
-						  data-edit="@pictureUri.Name"
+						  data-edit="@pictureViewModel.Name"
 						  tabindex="0">
 						<i class="bi bi-pencil-fill"></i>
 					</span>
-					
+
 					<ul class="picture-actions-list" style="display:none;">
 						<li>
-							<form method="post" 
-								  asp-controller="Pictures" 
-								  asp-action="@nameof(PicturesController.Delete)" 
-								  asp-route-pictureName="@pictureUri.Name" 
-								  style="margin:0;">
-								<button type="submit" 
-										class="dropdown-item text-danger" 
-										style="width:100%;text-align:left; padding:8px 16px;">
-									<i class="bi bi-trash"></i> Delete Photo
-								</button>
-							</form>
+							<button type="button"
+									class="dropdown-item text-danger js-delete-trigger"
+									data-picture-id="@pictureViewModel.Id"
+									data-picture-name="@pictureViewModel.Name"
+									style="width:100%; text-align:left; padding:8px 16px;">
+								<i class="bi bi-trash"></i> Delete Photo
+							</button>
 						</li>
 					</ul>
 				</div>
@@ -82,13 +85,45 @@
 
 <partial name="_GenericModalPartial" model="string.Empty" />
 
+<div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-labelledby="deleteConfirmModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered">
+		<div class="modal-content modal-picture-content">
+			<div class="modal-header modal-picture-header">
+				<h5 class="modal-title text-white" id="deleteConfirmModalLabel">
+					<i class="bi bi-trash"></i> Delete Photo
+				</h5>
+				<button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body text-white">
+				Are you sure you want to delete <strong id="deletePhotoName"></strong>? This action cannot be undone.
+			</div>
+			<div class="modal-footer" style="border-top: 1px solid rgba(255,255,255,0.15);">
+				<button type="button" class="btn glass-button" data-bs-dismiss="modal">
+					<i class="bi bi-x-lg"></i> Cancel
+				</button>
+				<form id="deleteConfirmForm" method="post"
+					  asp-controller="Pictures"
+					  asp-action="@nameof(PicturesController.Delete)">
+					<input type="hidden" id="deleteConfirmPictureId" name="pictureId" value="" />
+					<button type="submit" class="btn btn-danger">
+						<i class="bi bi-trash"></i> Yes, Delete
+					</button>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+
 @section Scripts {
 	<script>
 		document.addEventListener('DOMContentLoaded', function () {
 			const pictureContainers = document.querySelectorAll('.user-picture-container');
 			const editIcons = document.querySelectorAll('.edit-icon');
 			const modalImageContainer = document.getElementById('modalContainer');
-			const modal = new bootstrap.Modal(document.getElementById('genericModal'));
+			const previewModal = new bootstrap.Modal(document.getElementById('genericModal'));
+			const deleteModal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
+			const deletePhotoName = document.getElementById('deletePhotoName');
+			const deleteConfirmPictureId = document.getElementById('deleteConfirmPictureId');
 
 			// Click on image to view full size
 			pictureContainers.forEach(container => {
@@ -99,7 +134,7 @@
 						modalImageContainer.innerHTML = 
 							`<img src="${imgUrl}" class="large-picture" alt="Large picture" />`;
 					}
-					modal.show();
+					previewModal.show();
 				});
 			});
 
@@ -108,15 +143,13 @@
 				editIconSpan.addEventListener('click', function (e) {
 					e.stopPropagation();
 					e.preventDefault();
-					
-					// Close all other menus first
+
 					document.querySelectorAll('.picture-actions-list').forEach(list => {
 						if (list !== this.parentElement.querySelector('.picture-actions-list')) {
 							list.style.display = 'none';
 						}
 					});
-					
-					// Toggle this menu
+
 					const actionsList = this.parentElement.querySelector('.picture-actions-list');
 					if (actionsList) {
 						const isVisible = actionsList.style.display === 'block';
@@ -125,7 +158,16 @@
 				});
 			});
 
-			// Close actions menu when clicking outside
+			document.querySelectorAll('.js-delete-trigger').forEach(btn => {
+				btn.addEventListener('click', function (e) {
+					e.stopPropagation();
+					deletePhotoName.textContent = this.dataset.pictureName;
+					deleteConfirmPictureId.value = this.dataset.pictureId;
+					document.querySelectorAll('.picture-actions-list').forEach(list => list.style.display = 'none');
+					deleteModal.show();
+				});
+			});
+
 			document.addEventListener('click', function (e) {
 				if (!e.target.closest('.user-picture-container')) {
 					document.querySelectorAll('.picture-actions-list').forEach(list => {
