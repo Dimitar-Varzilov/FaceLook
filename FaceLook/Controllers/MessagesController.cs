@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace FaceLook.Web.Controllers
 {
     [Authorize]
-    public class MessagesController(IMessageService messageService) : Controller
+    public class MessagesController(IMessageService messageService, IFriendService friendService) : Controller
     {
         public async Task<IActionResult> Index()
         {
@@ -23,11 +23,14 @@ namespace FaceLook.Web.Controllers
             }
         }
 
-        public async Task<IActionResult> Create()
+        public async Task<IActionResult> Create(string? receiverEmail = null)
         {
+            var friends = await friendService.GetAcceptedFriendsAsync(User.GetUserId());
+            ViewBag.Friends = friends;
+
             var model = new SendMessageRequest()
             {
-                ReceiverEmail = string.Empty,
+                ReceiverEmail = receiverEmail ?? string.Empty,
                 Content = string.Empty,
                 SenderId = string.Empty
             };

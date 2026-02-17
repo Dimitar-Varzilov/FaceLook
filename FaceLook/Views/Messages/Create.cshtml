@@ -1,23 +1,56 @@
 @model SendMessageRequest
 @using FaceLook.Services.Extensions
+@using FaceLook.Web.ViewModels
 
 @{
     ViewData["Title"] = "New Message";
+    var friends = ViewBag.Friends as IEnumerable<FriendViewModel> ?? [];
 }
 
 <div class="container mt-5">
     <div class="glass-card">
-        @{
-            ViewData["FormTitle"] = "Create New Message";
-            ViewData["FormSubtitle"] = "Send a message to another user";
-            ViewData["ShowTitle"] = true;
-            ViewData["MessageRows"] = 5;
-            ViewData["SubmitButtonText"] = "Send Message";
-            ViewData["ShowBackButton"] = true;
+        <h3 class="text-white mb-1">
+            <i class="bi bi-envelope-plus"></i> New Message
+        </h3>
+        <p class="text-white opacity-75 mb-4">Send a message to one of your friends</p>
+
+        @if (!friends.Any())
+        {
+            <div class="alert alert-warning glass-card">
+                <i class="bi bi-exclamation-triangle"></i>
+                You have no friends yet. <a asp-controller="Friends" asp-action="Index" class="alert-link">Add friends</a> to start messaging.
+            </div>
         }
-        
+        else
+        {
+            <!-- Friend quick-select pills -->
+            <div class="mb-4">
+                <label class="form-label text-white mb-2">
+                    <i class="bi bi-people"></i> Quick select a friend
+                </label>
+                <div class="d-flex flex-wrap gap-2" id="friendPills">
+                    @foreach (var friend in friends)
+                    {
+                        <button type="button"
+                                class="btn btn-sm glass-button friend-pill"
+                                data-email="@friend.FriendEmail">
+                            <i class="bi bi-person-circle"></i> @friend.FriendUserName
+                        </button>
+                    }
+                </div>
+            </div>
+        }
+
         <div class="row">
             <div class="col-md-8">
+                @{
+                    ViewData["FormTitle"] = "";
+                    ViewData["ShowTitle"] = false;
+                    ViewData["MessageRows"] = 5;
+                    ViewData["SubmitButtonText"] = "Send Message";
+                    ViewData["ShowBackButton"] = true;
+                    ViewData["ReturnUrl"] = Url.Action("Index", "Messages");
+                }
                 <partial name="_SendMessagePartial" model="Model" />
             </div>
         </div>
@@ -26,4 +59,22 @@
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        document.querySelectorAll('.friend-pill').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const email = btn.dataset.email;
+                document.getElementById('ReceiverEmail').value = email;
+                document.querySelectorAll('.friend-pill').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+            });
+        });
+
+        // Pre-select if email already filled
+        const receiverInput = document.getElementById('ReceiverEmail');
+        if (receiverInput && receiverInput.value) {
+            document.querySelectorAll('.friend-pill').forEach(btn => {
+                if (btn.dataset.email === receiverInput.value) btn.classList.add('active');
+            });
+        }
+    </script>
 }
