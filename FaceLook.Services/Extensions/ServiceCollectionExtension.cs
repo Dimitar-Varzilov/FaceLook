@@ -31,6 +31,7 @@ namespace FaceLook.Services.Extensions
             services.AddScoped<IEmailSender, EmailSender>();
             services.AddScoped<IFileShareService, FileShareService>();
             services.AddScoped<IMessageService, MessageService>();
+            services.AddScoped<IPictureService, PictureService>();
         }
 
         private static void RegisterApplicationServices(IServiceCollection services)
