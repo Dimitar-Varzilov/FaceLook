@@ -125,18 +125,20 @@
 			const deletePhotoName = document.getElementById('deletePhotoName');
 			const deleteConfirmPictureId = document.getElementById('deleteConfirmPictureId');
 
+			// Click on image to view full size
 			pictureContainers.forEach(container => {
 				container.querySelector('.user-picture').addEventListener('click', function (e) {
 					e.stopPropagation();
 					const imgUrl = container.getAttribute('data-full');
 					if (modalImageContainer) {
-						modalImageContainer.innerHTML =
+						modalImageContainer.innerHTML = 
 							`<img src="${imgUrl}" class="large-picture" alt="Large picture" />`;
 					}
 					previewModal.show();
 				});
 			});
 
+			// Toggle actions menu on pencil icon click
 			editIcons.forEach(editIconSpan => {
 				editIconSpan.addEventListener('click', function (e) {
 					e.stopPropagation();
