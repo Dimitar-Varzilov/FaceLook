@@ -58,27 +58,23 @@
 						 alt="User picture"
 						 class="user-picture"
 						 style="width:100%; height:100%; object-fit:cover; border-radius:15px;" />
-					
+
 					<span class="edit-icon"
 						  title="Edit Photo"
 						  data-edit="@pictureViewModel.Name"
 						  tabindex="0">
 						<i class="bi bi-pencil-fill"></i>
 					</span>
-					
+
 					<ul class="picture-actions-list" style="display:none;">
 						<li>
-							<form method="post"
-								  asp-controller="Pictures"
-								  asp-action="@nameof(PicturesController.Delete)"
-								  asp-route-pictureId="@pictureViewModel.Id"
-								  style="margin:0;">
-								<button type="submit"
-										class="dropdown-item text-danger"
-										style="width:100%;text-align:left; padding:8px 16px;">
-									<i class="bi bi-trash"></i> Delete Photo
-								</button>
-							</form>
+							<button type="button"
+									class="dropdown-item text-danger js-delete-trigger"
+									data-picture-id="@pictureViewModel.Id"
+									data-picture-name="@pictureViewModel.Name"
+									style="width:100%; text-align:left; padding:8px 16px;">
+								<i class="bi bi-trash"></i> Delete Photo
+							</button>
 						</li>
 					</ul>
 				</div>
@@ -89,15 +85,46 @@
 
 <partial name="_GenericModalPartial" model="string.Empty" />
 
+<div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-labelledby="deleteConfirmModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered">
+		<div class="modal-content modal-picture-content">
+			<div class="modal-header modal-picture-header">
+				<h5 class="modal-title text-white" id="deleteConfirmModalLabel">
+					<i class="bi bi-trash"></i> Delete Photo
+				</h5>
+				<button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body text-white">
+				Are you sure you want to delete <strong id="deletePhotoName"></strong>? This action cannot be undone.
+			</div>
+			<div class="modal-footer" style="border-top: 1px solid rgba(255,255,255,0.15);">
+				<button type="button" class="btn glass-button" data-bs-dismiss="modal">
+					<i class="bi bi-x-lg"></i> Cancel
+				</button>
+				<form id="deleteConfirmForm" method="post"
+					  asp-controller="Pictures"
+					  asp-action="@nameof(PicturesController.Delete)">
+					<input type="hidden" id="deleteConfirmPictureId" name="pictureId" value="" />
+					<button type="submit" class="btn btn-danger">
+						<i class="bi bi-trash"></i> Yes, Delete
+					</button>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+
 @section Scripts {
 	<script>
 		document.addEventListener('DOMContentLoaded', function () {
 			const pictureContainers = document.querySelectorAll('.user-picture-container');
 			const editIcons = document.querySelectorAll('.edit-icon');
 			const modalImageContainer = document.getElementById('modalContainer');
-			const modal = new bootstrap.Modal(document.getElementById('genericModal'));
+			const previewModal = new bootstrap.Modal(document.getElementById('genericModal'));
+			const deleteModal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
+			const deletePhotoName = document.getElementById('deletePhotoName');
+			const deleteConfirmPictureId = document.getElementById('deleteConfirmPictureId');
 
-			// Click on image to view full size
 			pictureContainers.forEach(container => {
 				container.querySelector('.user-picture').addEventListener('click', function (e) {
 					e.stopPropagation();
@@ -106,24 +133,21 @@
 						modalImageContainer.innerHTML =
 							`<img src="${imgUrl}" class="large-picture" alt="Large picture" />`;
 					}
-					modal.show();
+					previewModal.show();
 				});
 			});
 
-			// Toggle actions menu on pencil icon click
 			editIcons.forEach(editIconSpan => {
 				editIconSpan.addEventListener('click', function (e) {
 					e.stopPropagation();
 					e.preventDefault();
-					
-					// Close all other menus first
+
 					document.querySelectorAll('.picture-actions-list').forEach(list => {
 						if (list !== this.parentElement.querySelector('.picture-actions-list')) {
 							list.style.display = 'none';
 						}
 					});
-					
-					// Toggle this menu
+
 					const actionsList = this.parentElement.querySelector('.picture-actions-list');
 					if (actionsList) {
 						const isVisible = actionsList.style.display === 'block';
@@ -132,7 +156,16 @@
 				});
 			});
 
-			// Close actions menu when clicking outside
+			document.querySelectorAll('.js-delete-trigger').forEach(btn => {
+				btn.addEventListener('click', function (e) {
+					e.stopPropagation();
+					deletePhotoName.textContent = this.dataset.pictureName;
+					deleteConfirmPictureId.value = this.dataset.pictureId;
+					document.querySelectorAll('.picture-actions-list').forEach(list => list.style.display = 'none');
+					deleteModal.show();
+				});
+			});
+
 			document.addEventListener('click', function (e) {
 				if (!e.target.closest('.user-picture-container')) {
 					document.querySelectorAll('.picture-actions-list').forEach(list => {
