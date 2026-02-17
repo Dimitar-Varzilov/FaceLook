@@ -1,0 +1,1 @@
+﻿const setSendButtonDisableState = (isDisabled) => document.getElementById("sendButton").disabled = isDisabled;

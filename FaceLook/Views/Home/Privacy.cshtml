@@ -1,6 +1,73 @@
-﻿@{
+@{
     ViewData["Title"] = "Privacy Policy";
 }
-<h1>@ViewData["Title"]</h1>
 
-<p>Use this page to detail your site's privacy policy.</p>
+<div class="container mt-5">
+    <div class="glass-card">
+        <h1 class="text-white mb-4">
+            <i class="bi bi-shield-lock"></i> @ViewData["Title"]
+        </h1>
+        
+        <div class="text-white">
+            <h3 class="mb-3">Your Privacy Matters</h3>
+            <p class="mb-4">
+                At FaceLook, we take your privacy seriously. This policy outlines how we collect, use, and protect your personal information.
+            </p>
+            
+            <h4 class="mt-4 mb-3">
+                <i class="bi bi-info-circle"></i> Information We Collect
+            </h4>
+            <p>
+                We collect information you provide directly to us, including:
+            </p>
+            <ul class="mb-4">
+                <li>Account information (name, email, password)</li>
+                <li>Profile information and photos you upload</li>
+                <li>Messages and communications you send</li>
+                <li>Usage data and analytics</li>
+            </ul>
+            
+            <h4 class="mt-4 mb-3">
+                <i class="bi bi-shield-check"></i> How We Use Your Information
+            </h4>
+            <p>
+                Your information is used to:
+            </p>
+            <ul class="mb-4">
+                <li>Provide and improve our services</li>
+                <li>Enable communication between users</li>
+                <li>Maintain security and prevent fraud</li>
+                <li>Send important updates and notifications</li>
+            </ul>
+            
+            <h4 class="mt-4 mb-3">
+                <i class="bi bi-lock"></i> Data Security
+            </h4>
+            <p class="mb-4">
+                We implement industry-standard security measures to protect your data. All sensitive information is encrypted, and we regularly update our security protocols.
+            </p>
+            
+            <h4 class="mt-4 mb-3">
+                <i class="bi bi-person-check"></i> Your Rights
+            </h4>
+            <p>
+                You have the right to:
+            </p>
+            <ul class="mb-4">
+                <li>Access your personal data</li>
+                <li>Correct inaccurate information</li>
+                <li>Request deletion of your account</li>
+                <li>Opt-out of marketing communications</li>
+            </ul>
+            
+            <div class="mt-5 pt-3" style="border-top: 1px solid rgba(255, 255, 255, 0.2);">
+                <p class="mb-2">
+                    <strong>Last Updated:</strong> @DateTimeOffset.Now.ToString("MMMM yyyy")
+                </p>
+                <p>
+                    For questions about this privacy policy, please contact us through our support channels.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>

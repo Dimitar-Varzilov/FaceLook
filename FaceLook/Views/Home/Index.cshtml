@@ -1,8 +1,104 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+@model SendMessageRequest
+@inject SignInManager<User> SignInManager
+
+@{
+    ViewData["Title"] = "Welcome to FaceLook";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+@if (SignInManager.IsSignedIn(User))
+{
+    <!-- Logged In User View -->
+    <div class="hero-section">
+        <div class="hero-content">
+            <h1 class="hero-title">Welcome Back! 👋</h1>
+            <p class="hero-subtitle">Connect, Share, and Chat with Friends</p>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">💬</div>
+                    <h3>Live Messaging</h3>
+                    <p>Chat with friends in real-time</p>
+                    <a asp-controller="Messages" asp-action="Index" class="btn glass-button mt-3">
+                        <i class="bi bi-chat-dots"></i> Messages
+                    </a>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">📸</div>
+                    <h3>Share Photos</h3>
+                    <p>Upload and share your moments</p>
+                    <a asp-controller="Pictures" asp-action="Index" class="btn glass-button mt-3">
+                        <i class="bi bi-images"></i> Gallery
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Chat Section -->
+    <div class="container">
+        <div class="chat-container glass-card">
+            @{
+                ViewData["FormTitle"] = "Quick Message";
+                ViewData["ShowTitle"] = true;
+                ViewData["MessageRows"] = 3;
+                ViewData["SubmitButtonText"] = "Send Message";
+                ViewData["ShowBackButton"] = false;
+            }
+            
+            <partial name="_SendMessagePartial" model="Model" />
+            
+            <hr class="text-white mt-4" />
+            
+            <div class="row">
+                <div class="col-md-12">
+                    <h5 class="text-white mb-3">
+                        <i class="bi bi-clock-history"></i> Recent Messages
+                    </h5>
+                    <ul id="messagesList" class="list-unstyled"></ul>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <!-- Not Logged In View -->
+    <div class="hero-section">
+        <div class="hero-content">
+            <h1 class="hero-title">Welcome to FaceLook 🌟</h1>
+            <p class="hero-subtitle">
+                Your Modern Social Network for Connecting, Sharing, and Staying in Touch
+            </p>
+            
+            <div class="mt-5">
+                <a asp-area="Identity" asp-page="/Account/Login" class="btn glass-button btn-lg me-3">
+                    <i class="bi bi-box-arrow-in-right"></i> Login
+                </a>
+                <a asp-area="Identity" asp-page="/Account/Register" class="btn glass-button btn-lg">
+                    <i class="bi bi-person-plus"></i> Sign Up
+                </a>
+            </div>
+            
+            <div class="feature-grid mt-5">
+                <div class="feature-card">
+                    <div class="feature-icon">💬</div>
+                    <h3 class="text-white">Real-Time Chat</h3>
+                    <p class="text-white">Connect instantly with friends through our live messaging system</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">📸</div>
+                    <h3 class="text-white">Photo Sharing</h3>
+                    <p class="text-white">Share your favorite moments with beautiful photo galleries</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">🔒</div>
+                    <h3 class="text-white">Secure & Private</h3>
+                    <p class="text-white">Your data is safe with industry-standard security measures</p>
+                </div>
+            </div>
+        </div>
+    </div>
+}

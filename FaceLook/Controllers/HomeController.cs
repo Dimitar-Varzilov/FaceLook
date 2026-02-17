@@ -1,21 +1,20 @@
-using FaceLook.Models;
+using FaceLook.Web.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 
-namespace FaceLook.Controllers
+namespace FaceLook.Web.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
-
-        public HomeController(ILogger<HomeController> logger)
-        {
-            _logger = logger;
-        }
-
         public IActionResult Index()
         {
-            return View();
+            var model = new SendMessageRequest()
+            {
+                ReceiverEmail = string.Empty,
+                Content = string.Empty,
+                SenderId = string.Empty
+            };
+            return View(model);
         }
 
         public IActionResult Privacy()

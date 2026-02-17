@@ -1,4 +1,4 @@
-namespace FaceLook.Models
+namespace FaceLook.Web.ViewModels
 {
     public class ErrorViewModel
     {

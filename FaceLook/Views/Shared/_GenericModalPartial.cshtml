@@ -1,0 +1,17 @@
+@model string
+
+<div class="modal fade" id="genericModal" tabindex="-1" aria-labelledby="genericModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-picture-large">
+        <div class="modal-content modal-picture-content">
+            <div class="modal-header modal-picture-header">
+                <h5 class="modal-title text-white" id="genericModalLabel">
+                    <i class="bi bi-image"></i> Picture
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body modal-picture-body" id="modalContainer">
+                @Html.Raw(Model)
+            </div>
+        </div>
+    </div>
+</div>
