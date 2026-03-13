@@ -362,3 +362,5 @@ MigrationBackup/
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
 /FaceLook/appsettings.Development.json
+/FaceLook/wwwroot/js/**/*.js
+/FaceLook/wwwroot/js/**/*.map

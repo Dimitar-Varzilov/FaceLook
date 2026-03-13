@@ -70,8 +70,7 @@
 	@await RenderSectionAsync("Scripts", required: false)
 	@if (SignInManager.IsSignedIn(User))
 	{
-		<script src="~/lib/microsoft/signalr/dist/browser/signalr.js"></script>
-		<script src="~/js/chat.js"></script>
+		<script type="module" src="~/js/Scripts/chat.js" asp-append-version="true"></script>
 	}
 </body>
 </html>

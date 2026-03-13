@@ -14,8 +14,22 @@
     <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="8.0.24" />
     <PackageReference Include="Microsoft.AspNetCore.SignalR" Version="1.2.9" />
     <PackageReference Include="Microsoft.Azure.SignalR" Version="1.32.0" />
+    <PackageReference Include="Microsoft.TypeScript.MSBuild" Version="5.9.3">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.23" />
   </ItemGroup>
+
+  <!-- TypeScript source files — watched by the TS language service -->
+  <ItemGroup>
+    <TypeScriptCompile Include="Scripts\**\*.ts" />
+  </ItemGroup>
+
+  <!-- Emit settings kept in tsconfig.json; tell MSBuild where sources live -->
+  <PropertyGroup>
+    <TypeScriptSourceMap>true</TypeScriptSourceMap>
+  </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\FaceLook.Common\FaceLook.Common.csproj" />
@@ -23,4 +37,12 @@
     <ProjectReference Include="..\FaceLook.Web.ViewModels\FaceLook.Web.ViewModels.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\js\" />
+  </ItemGroup>
+
+	<Target Name="ViteBuild" BeforeTargets="Build" Condition="'$(Configuration)' == 'Release'">
+		<Exec Command="npm install" />
+		<Exec Command="npm run build" />
+	</Target>
 </Project>
