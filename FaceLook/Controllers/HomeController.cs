@@ -10,7 +10,7 @@ namespace FaceLook.Web.Controllers
         {
             var model = new SendMessageRequest()
             {
-                ReceiverEmail = string.Empty,
+                ChatId = Guid.Empty,
                 Content = string.Empty,
                 SenderId = string.Empty
             };

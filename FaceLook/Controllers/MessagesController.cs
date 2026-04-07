@@ -23,14 +23,14 @@ namespace FaceLook.Web.Controllers
             }
         }
 
-        public async Task<IActionResult> Create(string? receiverEmail = null)
+        public async Task<IActionResult> Create()
         {
             var friends = await friendService.GetAcceptedFriendsAsync(User.GetUserId());
             ViewBag.Friends = friends;
 
             var model = new SendMessageRequest()
             {
-                ReceiverEmail = receiverEmail ?? string.Empty,
+                ChatId = Guid.Empty,
                 Content = string.Empty,
                 SenderId = string.Empty
             };
@@ -48,7 +48,7 @@ namespace FaceLook.Web.Controllers
                 }
 
                 var viewModel = await messageService.SendMessageAsync(sendMessageRequest);
-                
+
                 if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
                 {
                     return Redirect(returnUrl);
