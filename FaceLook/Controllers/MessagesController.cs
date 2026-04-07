@@ -48,7 +48,7 @@ namespace FaceLook.Web.Controllers
                 }
 
                 var viewModel = await messageService.SendMessageAsync(sendMessageRequest);
-
+                
                 if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
                 {
                     return Redirect(returnUrl);

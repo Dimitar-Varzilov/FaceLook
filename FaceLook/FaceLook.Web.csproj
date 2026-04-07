@@ -7,7 +7,7 @@
 		<LangVersion>latest</LangVersion>
     <UserSecretsId>aspnet-FaceLook-f2808d80-0439-42c2-9070-24167481675a</UserSecretsId>
   </PropertyGroup>
-	
+
   <ItemGroup>
     <PackageReference Include="Azure.Extensions.AspNetCore.Configuration.Secrets" Version="1.5.0" />
     <PackageReference Include="Azure.Identity" Version="1.19.0" />

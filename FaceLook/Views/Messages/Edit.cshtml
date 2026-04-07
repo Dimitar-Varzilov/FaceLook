@@ -19,7 +19,7 @@
             <div class="col-md-8">
                 <form asp-action="@nameof(MessagesController.EditMessage)">
                     <div asp-validation-summary="ModelOnly" class="alert alert-danger glass-card mb-3"></div>
-
+                    
                     <input asp-for="CreatedAt" type="hidden" value="@Model.CreatedAt" />
                     <input asp-for="Id" type="hidden" value="@Model.Id" />
                     <input asp-for="MessageStatus" type="hidden" value="@Model.MessageStatus" />
