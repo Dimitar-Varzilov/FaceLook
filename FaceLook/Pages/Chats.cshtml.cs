@@ -38,6 +38,62 @@ namespace FaceLook.Web.Pages
         [BindProperty]
         public string? MessageContent { get; set; }
 
+        [BindProperty]
+        public Guid MessageId { get; set; }
+
+        [BindProperty]
+        public MessageViewModel? MessageToEdit { get; set; }
+
+        public async Task<IActionResult> OnPostEditMessageAsync()
+        {
+            UserId = User.GetUserId();
+            ErrorMessage = null;
+
+            try
+            {
+                if (MessageToEdit is null)
+                    throw new ArgumentException("Message data is required");
+
+                if (MessageToEdit.Id == Guid.Empty)
+                    throw new ArgumentException("MessageId is required");
+
+                if (string.IsNullOrWhiteSpace(MessageToEdit.Content))
+                    throw new ArgumentException("Message cannot be empty");
+
+                var updatedMessage = await messageService.UpdateMessageAsync(UserId, MessageToEdit);
+                await LoadDataAsync();
+                return RedirectToPage();
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = ex.InnerException?.Message ?? ex.Message;
+                await LoadDataAsync();
+                return Page();
+            }
+        }
+
+        public async Task<IActionResult> OnPostDeleteMessageAsync()
+        {
+            UserId = User.GetUserId();
+            ErrorMessage = null;
+
+            try
+            {
+                if (MessageId == Guid.Empty)
+                    throw new ArgumentException("MessageId is required");
+
+                await messageService.DeleteMessageAsync(UserId, MessageId);
+                await LoadDataAsync();
+                return RedirectToPage();
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = ex.InnerException?.Message ?? ex.Message;
+                await LoadDataAsync();
+                return Page();
+            }
+        }
+
         public async Task<IActionResult> OnPostCreateChatAsync()
         {
             UserId = User.GetUserId();
