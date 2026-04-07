@@ -38,7 +38,6 @@
 				<thead>
 					<tr>
 						<th><i class="bi bi-person-fill"></i> From</th>
-						<th><i class="bi bi-person-check-fill"></i> To</th>
 						<th><i class="bi bi-file-text"></i> @Html.DisplayNameFor(model => model.Content)</th>
 						<th><i class="bi bi-info-circle"></i> Status</th>
 						<th><i class="bi bi-calendar-plus"></i> @Html.DisplayNameFor(model => model.CreatedAt)</th>
@@ -57,16 +56,6 @@
 								else
 								{
 									<span>@(item.SenderEmail)</span>
-								}
-							</td>
-							<td>
-								@if (item.ReceiverId == currentUserId)
-								{
-									<span class="badge bg-success">You</span>
-								}
-								else
-								{
-									<span>@(item.ReceiverEmail)</span>
 								}
 							</td>
 							<td>@Html.DisplayFor(modelItem => item.Content)</td>

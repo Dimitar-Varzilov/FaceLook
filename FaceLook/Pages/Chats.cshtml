@@ -1,0 +1,200 @@
+@page
+@using FaceLook.Web.Pages
+@model ChatsModel
+
+<div class="container-glass">
+
+	@if (Model.Friends is null)
+	{
+		<p>Loading Model.Friends...</p>
+	}
+	else if (Model.Friends.Any())
+	{
+		<div class="glass-card p-3 mb-4">
+			<h5 class="text-white-50 mb-3">Start a new chat</h5>
+
+			@foreach (var friend in Model.Friends)
+			{
+				<div class="d-flex align-items-center gap-2 mb-2 text-white"
+					 style="cursor:pointer"
+					 onclick="toggleParticipant('@friend.FriendId', this)"
+					 data-friend-id="@friend.FriendId">
+					<i class="bi bi-circle"></i>
+					<span>@friend.FriendUserName</span>
+				</div>
+			}
+
+			<form id="createChatForm" asp-page-handler="CreateChat" method="post">
+				<div id="participantsContainer"></div>
+
+				<input type="text" 
+					   class="form-control form-control-sm mt-3 mb-2"
+					   id="chatNameInput"
+					   placeholder="Chat name (optional)"
+					   maxlength="100" />
+
+				<button type="submit" 
+						class="btn btn-primary mt-2"
+						id="createChatBtn"
+						disabled="@true">
+					@if (Model.IsCreating)
+					{
+						<span class="spinner-border spinner-border-sm me-1"></span>
+					}
+					<i class="bi bi-plus-circle me-1"></i> Create Chat
+				</button>
+			</form>
+
+			@if (!string.IsNullOrEmpty(Model.ErrorMessage))
+			{
+				<div class="alert alert-danger mt-2">@Model.ErrorMessage</div>
+			}
+		</div>
+	}
+
+	@if (Model.Chats is null)
+	{
+		<p class="text-white-50">Loading chats...</p>
+	}
+	else if (!Model.Chats.Any())
+	{
+		<div class="glass-card text-center py-5">
+			<svg fill="currentColor" class="text-white-50 mb-3" style="width:3rem" viewBox="0 0 24 24">
+				<path d="M20 2H4a2 2 0 0 0-2 2v18l4-4h14a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2zm0 14H6l-2 2V4h16v12z" />
+			</svg>
+			<p class="text-white-50">No chats yet. <strong>Pick Model.Friends above</strong> to start one!</p>
+		</div>
+	}
+	else
+	{
+		<div class="d-flex flex-column gap-3">
+			@foreach (var chat in Model.Chats)
+			{
+				<div class="glass-card p-3 text-white-50">
+					<div class="d-flex align-items-center justify-content-between mb-2">
+						<strong>@(string.IsNullOrEmpty(chat.Name) ? "Unnamed chat" : chat.Name)</strong>
+						<div class="dropdown">
+							<button class="btn btn-sm btn-link text-white-50 p-0" type="button" data-bs-toggle="dropdown">
+								<i class="bi bi-three-dots-vertical"></i>
+							</button>
+							<ul class="dropdown-menu dropdown-menu-dark">
+								<li>
+									<a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#renameModal" 
+									   onclick="setRenameChatId('@chat.Id', '@chat.Name')">
+										<i class="bi bi-pencil me-1"></i> Rename
+									</a>
+								</li>
+							</ul>
+						</div>
+					</div>
+					<div class="mb-3" style="max-height: 300px; overflow-y: auto;">
+						@if (chat.Messages.Any())
+						{
+							@foreach (var msg in chat.Messages)
+							{
+								<div class="small mt-1 p-2 bg-secondary rounded">@msg.Content</div>
+							}
+						}
+						else
+						{
+							<div class="small text-muted">No messages yet</div>
+						}
+					</div>
+
+					<form id="sendMessageForm_@chat.Id" asp-page-handler="SendMessage" method="post" class="d-flex gap-2">
+						<input type="hidden" name="ChatId" value="@chat.Id" />
+						<input type="text" 
+							   class="form-control form-control-sm"
+							   name="MessageContent"
+							   placeholder="Type a message..."
+							   maxlength="500"
+							   required />
+						<button type="submit" class="btn btn-sm btn-primary">
+							<i class="bi bi-send"></i> Send
+						</button>
+					</form>
+				</div>
+			}
+		</div>
+	}
+
+</div>
+
+<div class="modal fade" id="renameModal" tabindex="-1">
+	<div class="modal-dialog modal-dialog-centered">
+		<div class="modal-content bg-dark text-white-50 border-secondary">
+			<div class="modal-header">
+				<h5 class="modal-title">Rename Chat</h5>
+				<button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+			</div>
+			<form id="renameForm" asp-page-handler="RenameChat" method="post">
+				<div class="modal-body">
+					<input type="hidden" id="renameChatId" name="ChatId" />
+					<div class="mb-3">
+						<label for="renameChatName" class="form-label">Chat Name</label>
+						<input type="text" 
+							   class="form-control form-control-dark"
+							   id="renameChatName" 
+							   name="ChatName"
+							   maxlength="100"
+							   required />
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+					<button type="submit" class="btn btn-primary">Save</button>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+
+
+@section Scripts {
+	<partial name="_ValidationScriptsPartial" />
+	<script src="~/js/createChat.js"></script>
+	<script>
+		function setRenameChatId(chatId, chatName) {
+			document.getElementById('renameChatId').value = chatId;
+			document.getElementById('renameChatName').value = chatName || '';
+		}
+
+		document.getElementById('createChatForm').addEventListener('submit', function(e) {
+			const participantIds = getParticipants();
+			if (participantIds.length === 0) {
+				e.preventDefault();
+				return;
+			}
+
+			const container = document.getElementById('participantsContainer');
+			container.innerHTML = '';
+
+			participantIds.forEach(id => {
+				const input = document.createElement('input');
+				input.type = 'hidden';
+				input.name = 'ParticipantIds';
+				input.value = id;
+				container.appendChild(input);
+			});
+
+			const chatName = document.getElementById('chatNameInput').value;
+			if (chatName) {
+				const nameInput = document.createElement('input');
+				nameInput.type = 'hidden';
+				nameInput.name = 'ChatName';
+				nameInput.value = chatName;
+				container.appendChild(nameInput);
+			}
+
+			clearParticipantsUI();
+		});
+
+		document.getElementById('renameForm').addEventListener('submit', function(e) {
+			const chatName = document.getElementById('renameChatName').value.trim();
+			if (!chatName) {
+				e.preventDefault();
+				alert('Chat name cannot be empty');
+			}
+		});
+	</script>
+}

@@ -19,13 +19,13 @@
             <div class="col-md-8">
                 <form asp-action="@nameof(MessagesController.EditMessage)">
                     <div asp-validation-summary="ModelOnly" class="alert alert-danger glass-card mb-3"></div>
-                    
+
                     <input asp-for="CreatedAt" type="hidden" value="@Model.CreatedAt" />
                     <input asp-for="Id" type="hidden" value="@Model.Id" />
                     <input asp-for="MessageStatus" type="hidden" value="@Model.MessageStatus" />
                     <input asp-for="ModifiedAt" type="hidden" value="@Model.ModifiedAt" />
                     <input asp-for="ModifiedBy" type="hidden" value="@Model.ModifiedBy" />
-                    <input asp-for="ReceiverId" type="hidden" value="@Model.ReceiverId" />
+                    <input asp-for="ChatId" type="hidden" value="@Model.ChatId" />
                     <input asp-for="SenderId" type="hidden" value="@Model.SenderId" />
                     
                     <div class="mb-4">
