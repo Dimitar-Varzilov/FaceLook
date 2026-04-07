@@ -1,0 +1,330 @@
+@page
+@using FaceLook.Web.Pages
+@using FaceLook.Services.Extensions
+@model ChatsModel
+
+<div class="container-glass">
+
+	@if (Model.Friends is null)
+	{
+		<p>Loading Model.Friends...</p>
+	}
+	else if (Model.Friends.Any())
+	{
+		<div class="glass-card p-3 mb-4">
+			<h5 class="text-white-50 mb-3">Start a new chat</h5>
+
+			@foreach (var friend in Model.Friends)
+			{
+				<div class="d-flex align-items-center gap-2 mb-2 text-white"
+					 style="cursor:pointer"
+					 onclick="toggleParticipant('@friend.FriendId', this)"
+					 data-friend-id="@friend.FriendId">
+					<i class="bi bi-circle"></i>
+					<span>@friend.FriendUserName</span>
+				</div>
+			}
+
+			<form id="createChatForm" asp-page-handler="CreateChat" method="post">
+				<div id="participantsContainer"></div>
+
+				<input type="text" 
+					   class="form-control form-control-sm mt-3 mb-2"
+					   id="chatNameInput"
+					   placeholder="Chat name (optional)"
+					   maxlength="100" />
+
+				<button type="submit" 
+						class="btn btn-primary mt-2"
+						id="createChatBtn"
+						disabled="@true">
+					@if (Model.IsCreating)
+					{
+						<span class="spinner-border spinner-border-sm me-1"></span>
+					}
+					<i class="bi bi-plus-circle me-1"></i> Create Chat
+				</button>
+			</form>
+
+			@if (!string.IsNullOrEmpty(Model.ErrorMessage))
+			{
+				<div class="alert alert-danger mt-2">@Model.ErrorMessage</div>
+			}
+		</div>
+	}
+
+	@if (Model.Chats is null)
+	{
+		<p class="text-white-50">Loading chats...</p>
+	}
+	else if (!Model.Chats.Any())
+	{
+		<div class="glass-card text-center py-5">
+			<svg fill="currentColor" class="text-white-50 mb-3" style="width:3rem" viewBox="0 0 24 24">
+				<path d="M20 2H4a2 2 0 0 0-2 2v18l4-4h14a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2zm0 14H6l-2 2V4h16v12z" />
+			</svg>
+			<p class="text-white-50">No chats yet. <strong>Pick Model.Friends above</strong> to start one!</p>
+		</div>
+	}
+	else
+	{
+		<div class="d-flex flex-column gap-3">
+			@foreach (var chat in Model.Chats)
+			{
+				var currentUserId = User.GetUserId();
+				<div class="glass-card p-3 text-white-50">
+					<div class="d-flex align-items-center justify-content-between mb-2">
+						<strong>@(string.IsNullOrEmpty(chat.Name) ? "Unnamed chat" : chat.Name)</strong>
+						<div class="dropdown">
+							<button class="btn btn-sm btn-link text-white-50 p-0" type="button" data-bs-toggle="dropdown">
+								<i class="bi bi-three-dots-vertical"></i>
+							</button>
+							<ul class="dropdown-menu dropdown-menu-dark">
+								<li>
+									<a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#renameModal" 
+									   onclick="setRenameChatId('@chat.Id', '@chat.Name')">
+										<i class="bi bi-pencil me-1"></i> Rename
+									</a>
+								</li>
+							</ul>
+						</div>
+					</div>
+					<div class="mb-3" style="max-height: 300px; overflow-y: auto;">
+						@if (chat.Messages.Any())
+						{
+							@foreach (var msg in chat.Messages)
+							{
+								<div class="small mt-1 p-2 bg-secondary rounded d-flex justify-content-between align-items-start">
+									<div class="flex-grow-1">
+										<strong>@(msg.SenderId == currentUserId ? "You" : msg.SenderEmail)</strong>
+										<div>@msg.Content</div>
+										<small class="text-white-50">@msg.CreatedAt.ToString("g")</small>
+									</div>
+									@if (msg.SenderId == currentUserId)
+									{
+										<div class="ms-2">
+											<button type="button" 
+													class="btn btn-sm btn-link text-white-50 p-0 me-1"
+													data-bs-toggle="modal"
+													data-bs-target="#editMessageModal"
+													onclick="setEditMessageData('@msg.Id', '@msg.Content', '@msg.ChatId', '@msg.SenderId', '@msg.MessageStatus')">
+												<i class="bi bi-pencil"></i>
+											</button>
+											<button type="button"
+													class="btn btn-sm btn-link text-danger p-0 delete-message-trigger"
+													data-message-id="@msg.Id">
+												<i class="bi bi-trash"></i>
+											</button>
+										</div>
+									}
+								</div>
+							}
+						}
+						else
+						{
+							<div class="small text-muted">No messages yet</div>
+						}
+					</div>
+
+					<form id="sendMessageForm_@chat.Id" asp-page-handler="SendMessage" method="post" class="d-flex gap-2">
+						<input type="hidden" name="ChatId" value="@chat.Id" />
+						<input type="text" 
+							   class="form-control form-control-sm"
+							   name="MessageContent"
+							   placeholder="Type a message..."
+							   maxlength="500"
+							   required />
+						<button type="submit" class="btn btn-sm btn-primary">
+							<i class="bi bi-send"></i> Send
+						</button>
+					</form>
+				</div>
+			}
+		</div>
+	}
+
+</div>
+
+<!-- Rename Chat Modal -->
+<div class="modal fade" id="renameModal" tabindex="-1">
+	<div class="modal-dialog modal-dialog-centered">
+		<div class="modal-content bg-dark text-white-50 border-secondary">
+			<div class="modal-header">
+				<h5 class="modal-title">Rename Chat</h5>
+				<button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+			</div>
+			<form id="renameForm" asp-page-handler="RenameChat" method="post">
+				<div class="modal-body">
+					<input type="hidden" id="renameChatId" name="ChatId" />
+					<div class="mb-3">
+						<label for="renameChatName" class="form-label">Chat Name</label>
+						<input type="text" 
+							   class="form-control form-control-dark"
+							   id="renameChatName" 
+							   name="ChatName"
+							   maxlength="100"
+							   required />
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+					<button type="submit" class="btn btn-primary">Save</button>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+
+<!-- Edit Message Modal -->
+<div class="modal fade" id="editMessageModal" tabindex="-1">
+	<div class="modal-dialog modal-dialog-centered">
+		<div class="modal-content bg-dark text-white-50 border-secondary">
+			<div class="modal-header">
+				<h5 class="modal-title">Edit Message</h5>
+				<button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+			</div>
+			<form id="editMessageForm" asp-page-handler="EditMessage" method="post">
+				@Html.AntiForgeryToken()
+				<div class="modal-body">
+					<div class="mb-3">
+						<label for="editMessageContent" class="form-label">Message Content</label>
+						<textarea class="form-control form-control-dark"
+								  id="editMessageContent"
+								  name="MessageToEdit.Content"
+								  rows="4"
+								  required></textarea>
+					</div>
+					<input type="hidden" id="editMessageId" name="MessageToEdit.Id" />
+					<input type="hidden" id="editMessageChatId" name="MessageToEdit.ChatId" />
+					<input type="hidden" id="editMessageSenderId" name="MessageToEdit.SenderId" />
+					<input type="hidden" id="editMessageStatus" name="MessageToEdit.MessageStatus" />
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+					<button type="submit" class="btn btn-primary">Save Changes</button>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+
+<!-- Delete Message Modal -->
+<div id="deleteMessageModal" class="modal-glass" style="display:none; position:fixed; z-index:9999; left:0; top:0; width:100%; height:100%;">
+	<div style="display:flex; align-items:center; justify-content:center; height:100%;">
+		<div class="glass-card" style="max-width:400px; text-align:center;">
+			<div class="mb-3">
+				<i class="bi bi-exclamation-triangle" style="font-size:3rem; color:#f5576c;"></i>
+			</div>
+			<h4 class="text-white mb-3">Delete Message?</h4>
+			<p class="text-white">This action is permanent and cannot be undone.</p>
+
+			<form id="deleteMessageForm" asp-page-handler="DeleteMessage" method="post">
+				@Html.AntiForgeryToken()
+				<input type="hidden" id="deleteMessageId" name="MessageId" />
+
+				<div class="mt-4">
+					<button type="button" onclick="closeDeleteMessageModal()" class="btn glass-button me-2">
+						<i class="bi bi-x-circle"></i> Cancel
+					</button>
+					<button type="submit" class="btn btn-danger">
+						<i class="bi bi-trash"></i> Confirm Delete
+					</button>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+
+
+@section Scripts {
+	<partial name="_ValidationScriptsPartial" />
+	<script src="~/js/createChat.js"></script>
+	<script>
+		function setRenameChatId(chatId, chatName) {
+			document.getElementById('renameChatId').value = chatId;
+			document.getElementById('renameChatName').value = chatName || '';
+		}
+
+		document.getElementById('createChatForm').addEventListener('submit', function(e) {
+			const participantIds = getParticipants();
+			if (participantIds.length === 0) {
+				e.preventDefault();
+				return;
+			}
+
+			const container = document.getElementById('participantsContainer');
+			container.innerHTML = '';
+
+			participantIds.forEach(id => {
+				const input = document.createElement('input');
+				input.type = 'hidden';
+				input.name = 'ParticipantIds';
+				input.value = id;
+				container.appendChild(input);
+			});
+
+			const chatName = document.getElementById('chatNameInput').value;
+			if (chatName) {
+				const nameInput = document.createElement('input');
+				nameInput.type = 'hidden';
+				nameInput.name = 'ChatName';
+				nameInput.value = chatName;
+				container.appendChild(nameInput);
+			}
+
+			clearParticipantsUI();
+		});
+
+		document.getElementById('renameForm').addEventListener('submit', function(e) {
+			const chatName = document.getElementById('renameChatName').value.trim();
+			if (!chatName) {
+				e.preventDefault();
+				alert('Chat name cannot be empty');
+			}
+		});
+
+		// Message edit and delete functionality
+		function setEditMessageData(messageId, messageContent, chatId, senderId, messageStatus = 'New') {
+			document.getElementById('editMessageId').value = messageId;
+			document.getElementById('editMessageContent').value = messageContent;
+			document.getElementById('editMessageChatId').value = chatId;
+			document.getElementById('editMessageSenderId').value = senderId;
+			document.getElementById('editMessageStatus').value = messageStatus;
+		}
+
+		function closeDeleteMessageModal() {
+			const modal = document.getElementById('deleteMessageModal');
+			if (modal) modal.style.display = 'none';
+		}
+
+		function openDeleteMessageModal(messageId) {
+			const modal = document.getElementById('deleteMessageModal');
+			const input = document.getElementById('deleteMessageId');
+			if (input && modal) {
+				input.value = messageId;
+				modal.style.display = 'block';
+			}
+		}
+
+		window.onclick = (event) => {
+			const modal = document.getElementById('deleteMessageModal');
+			if (event.target === modal) closeDeleteMessageModal();
+		};
+
+		document.addEventListener('click', (event) => {
+			const target = event.target.closest('.delete-message-trigger');
+			if (target) {
+				const messageId = target.getAttribute('data-message-id');
+				if (messageId) openDeleteMessageModal(messageId);
+			}
+		});
+
+		document.getElementById('editMessageForm').addEventListener('submit', function(e) {
+			const content = document.getElementById('editMessageContent').value.trim();
+			if (!content) {
+				e.preventDefault();
+				alert('Message cannot be empty');
+			}
+		});
+	</script>
+}

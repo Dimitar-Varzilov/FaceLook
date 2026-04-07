@@ -5,9 +5,8 @@ namespace FaceLook.Web.ViewModels
 {
     public record SendMessageRequest
     {
-        [EmailAddress]
         [Required]
-        public required string ReceiverEmail { get; set; }
+        public required Guid ChatId { get; set; }
 
         [MinLength(1)]
         [Required]

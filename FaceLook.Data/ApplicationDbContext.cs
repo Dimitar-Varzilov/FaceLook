@@ -6,9 +6,10 @@ namespace FaceLook.Data
 {
     public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : IdentityDbContext<User>(options)
     {
-        public DbSet<Message> Messages { get; set; }
-        public DbSet<Picture> Pictures { get; set; }
-        public DbSet<Friendship> Friendships { get; set; }
+        public virtual DbSet<Message> Messages { get; set; }
+        public virtual DbSet<Picture> Pictures { get; set; }
+        public virtual DbSet<Friendship> Friendships { get; set; }
+        public virtual DbSet<Chat> Chats { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -19,10 +20,10 @@ namespace FaceLook.Data
                 .OnDelete(DeleteBehavior.Restrict);
 
             builder.Entity<Message>()
-                .HasOne(m => m.Receiver)
-                .WithMany(u => u.ReceivedMessages)
-                .HasForeignKey(m => m.ReceiverId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .HasOne(m => m.Chat)
+                .WithMany(c => c.Messages)
+                .HasForeignKey(m => m.ChatId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             builder.Entity<Picture>()
                 .HasOne(p => p.User)
