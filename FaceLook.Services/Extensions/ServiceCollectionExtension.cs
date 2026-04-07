@@ -34,6 +34,7 @@ namespace FaceLook.Services.Extensions
             services.AddScoped<IPictureService, PictureService>();
             services.AddScoped<IFriendService, FriendService>();
             services.AddScoped<ICacheService, CacheService>();
+            services.AddScoped<IChatService, ChatService>();
         }
 
         private static void RegisterApplicationServices(IServiceCollection services)
