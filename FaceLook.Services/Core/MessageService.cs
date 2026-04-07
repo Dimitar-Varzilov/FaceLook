@@ -13,7 +13,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FaceLook.Services.Core
 {
-    public class MessageService(ApplicationDbContext dbContext, IMapper mapper, IHubContext<ChatHub, IChatClient> hubContext, UserManager<User> userManager, IFriendService friendService) : IMessageService
+    public class MessageService(ApplicationDbContext dbContext, IMapper mapper, IHubContext<ChatHub, IChatClient> hubContext, UserManager<User> userManager) : IMessageService
     {
 
         public async Task<MessageViewModel?> GetMessageById(Guid messageId)
@@ -30,7 +30,8 @@ namespace FaceLook.Services.Core
         {
             return await dbContext.Messages
                 .AsNoTracking()
-                .Where(m => (m.SenderId == userId || m.ReceiverId == userId) && !m.IsDeleted)
+                .Include(m => m.Chat)
+                .Where(m => m.Chat.ParticipantIds.Contains(userId) && !m.IsDeleted)
                 .OrderByDescending(m => m.CreatedAt)
                 .ProjectTo<MessageViewModel>(mapper.ConfigurationProvider)
                 .ToArrayAsync();
@@ -40,34 +41,35 @@ namespace FaceLook.Services.Core
         {
             var sender = await GetValidatedMessageAndUserAsync(sendMessageRequest.Content, sendMessageRequest.SenderId);
 
-            if (string.Equals(sender.Email, sendMessageRequest.ReceiverEmail, StringComparison.OrdinalIgnoreCase))
-                throw new ValidationException("Cannot send message to self");
+            if (sendMessageRequest.ChatId == Guid.Empty)
+                throw new ValidationException("ChatId is required");
 
-            var receiver = await userManager.FindByEmailAsync(sendMessageRequest.ReceiverEmail);
-            if (receiver == null)
-                throw new ResourceNotFoundException(nameof(receiver));
+            var chat = await dbContext.Chats
+                .FirstOrDefaultAsync(c => c.Id == sendMessageRequest.ChatId)
+                ?? throw new ResourceNotFoundException("Chat not found");
 
-            bool areFriends = await friendService.AreFriendsAsync(sender.Id, receiver.Id);
-            if (!areFriends)
-                throw new ValidationException("You can only send messages to friends");
+            if (!chat.ParticipantIds.Contains(sender.Id))
+                throw new ValidationException("User is not a participant of this chat");
 
             var messageToAdd = new Message()
             {
                 Content = sendMessageRequest.Content,
+                ChatId = sendMessageRequest.ChatId,
                 CreatedAt = DateTimeOffset.Now,
                 Id = Guid.NewGuid(),
                 IsDeleted = false,
                 MessageStatus = MessageStatus.New,
                 ModifiedBy = sender.Id,
-                ReceiverId = receiver.Id,
                 SenderId = sender.Id,
             };
 
             var addedEntityEntry = await dbContext.Messages.AddAsync(messageToAdd);
-            await SaveChangesAndSendMessageAsync(
-                senderEmail: sender.Email,
-                receiverEmail: receiver.Email,
-                content: addedEntityEntry.Entity.Content);
+
+            // Add message ID to chat's MessageIds collection
+            chat.MessageIds.Add(messageToAdd.Id);
+            dbContext.Chats.Update(chat);
+
+            await SaveChangesAndSendChatMessageAsync(sendMessageRequest.ChatId, sender.Email, messageToAdd.Content);
 
             return mapper.Map<MessageViewModel>(addedEntityEntry.Entity);
         }
@@ -82,7 +84,7 @@ namespace FaceLook.Services.Core
 
             var messageToUpdate = await dbContext.Messages
                 .Include(m => m.Sender)
-                .Include(m => m.Receiver)
+                .Include(m => m.Chat)
                 .FirstOrDefaultAsync(m => m.Id == request.Id) ?? throw new ResourceNotFoundException("Message is not found");
 
             if (messageToUpdate.IsDeleted)
@@ -93,10 +95,7 @@ namespace FaceLook.Services.Core
             messageToUpdate.Content = request.Content;
 
             var updatedEntityEntry = dbContext.Messages.Update(messageToUpdate);
-            await SaveChangesAndSendMessageAsync(
-                senderEmail: messageToUpdate.Sender.Email,
-                receiverEmail: messageToUpdate.Receiver.Email,
-                content: updatedEntityEntry.Entity.Content);
+            await SaveChangesAndSendChatMessageAsync(messageToUpdate.ChatId, messageToUpdate.Sender.Email, updatedEntityEntry.Entity.Content);
 
             return mapper.Map<MessageViewModel>(updatedEntityEntry.Entity);
         }
@@ -132,15 +131,25 @@ namespace FaceLook.Services.Core
             return sender;
         }
 
-        private async Task SaveChangesAndSendMessageAsync(string? senderEmail, string? receiverEmail, string content)
+        private async Task SaveChangesAndSendChatMessageAsync(Guid chatId, string? senderEmail, string content)
         {
             int rowModifiedCount = await dbContext.SaveChangesAsync();
 
-            if (rowModifiedCount > 0 && senderEmail is not null && receiverEmail is not null && !string.IsNullOrEmpty(content))
+            if (rowModifiedCount > 0 && senderEmail is not null && !string.IsNullOrEmpty(content))
             {
-                await hubContext.Clients.Group(receiverEmail).ReceiveMessage(senderEmail, content);
-                
-                await hubContext.Clients.Group(senderEmail).ReceiveMessage($"You → {receiverEmail}", content);
+                // Notify all chat participants
+                var chatParticipants = await dbContext.Chats
+                    .AsNoTracking()
+                    .Where(c => c.Id == chatId)
+                    .SelectMany(c => c.Participants.Select(p => p.Email))
+                    .Where(ce => ce != null)
+                    .Cast<string>()
+                    .ToListAsync();
+
+                foreach (var participantEmail in chatParticipants)
+                {
+                    await hubContext.Clients.Group(participantEmail).ReceiveMessage(senderEmail, content);
+                }
             }
         }
     }
