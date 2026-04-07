@@ -23,23 +23,14 @@
 
 <form asp-controller="@messageControllerName" asp-action="@nameof(MessagesController.CreateMessage)" class="@formClass" method="post">
 	<div asp-validation-summary="ModelOnly" class="alert alert-danger glass-card mb-3"></div>
-    
+
+	<input asp-for="ChatId" type="hidden" value="@((Guid.Empty).ToString())" />
 	<input asp-for="SenderId" type="hidden" value="@User.GetUserId()" />
 	@if (!string.IsNullOrEmpty(returnUrl))
 	{
 		<input type="hidden" name="returnUrl" value="@returnUrl" />
 	}
-    
-	<div class="mb-3">
-		<label asp-for="ReceiverEmail" class="form-label text-white mb-2">
-			<i class="bi bi-person"></i> Recipient Email
-		</label>
-		<input asp-for="ReceiverEmail"
-			   class="form-control glass-input"
-			   placeholder="Enter recipient's email address" />
-		<span asp-validation-for="ReceiverEmail" class="text-danger"></span>
-	</div>
-    
+
 	<div class="mb-3">
 		<label asp-for="Content" class="form-label text-white mb-2">
 			<i class="bi bi-chat-text"></i> Your Message
